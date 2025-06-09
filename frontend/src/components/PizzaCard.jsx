@@ -4,7 +4,7 @@ import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
 
 const PizzaCard = ({ pizza }) => {
   const [quantity, setQuantity] = useState(1);
-  const [variance, setVariance] = useState('small');
+  const [variants, setvariants] = useState('small');
 
   return (
     <div className="flex flex-col bg-white shadow-lg rounded-lg p-4 w-68 mx-auto hover:shadow-xl transition-shadow duration-300">
@@ -17,15 +17,15 @@ const PizzaCard = ({ pizza }) => {
       </div>
       <div className="text-lg text-center mb-2">{pizza.name}</div>
       <div className="text-center text-gray-700 font-medium mb-4">
-        Price: {pizza.price[variance] * quantity} Rs/-
+        Price: {pizza.price[variants] * quantity} Rs/-
       </div>
       <div className="flex justify-between items-center space-x-4">
         <select
           className="border border-gray-300 rounded-md px-2 py-1"
-          value={variance}
-          onChange={(e) => setVariance(e.target.value)}
+          value={variants}
+          onChange={(e) => setvariants(e.target.value)}
         >
-          {pizza.variance?.map((size, index) => (
+          {pizza.variants?.map((size, index) => (
             <option key={index} value={size.toLowerCase()}>
               {size}
             </option>

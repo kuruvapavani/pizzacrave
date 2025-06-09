@@ -12,7 +12,7 @@ const Home = () => {
       medium: 10.99,
       large: 12.99,
     },
-    variance: ['Small', 'Medium', 'Large'],
+    variants: ['Small', 'Medium', 'Large'],
   },{
     _id: '002',
     name: 'Margherita',
@@ -22,7 +22,7 @@ const Home = () => {
       medium: 10.99,
       large: 12.99,
     },
-    variance: ['Small', 'Medium', 'Large'],
+    variants: ['Small', 'Medium', 'Large'],
   },{
     _id: '003',
     name: 'Margherita',
@@ -32,7 +32,7 @@ const Home = () => {
       medium: 10.99,
       large: 12.99,
     },
-    variance: ['Small', 'Medium', 'Large'],
+    variants: ['Small', 'Medium', 'Large'],
   },{
     _id: '004',
     name: 'Margherita',
@@ -42,7 +42,7 @@ const Home = () => {
       medium: 10.99,
       large: 12.99,
     },
-    variance: ['Small', 'Medium', 'Large'],
+    variants: ['Small', 'Medium', 'Large'],
   },{
     _id: '005',
     name: 'Margherita',
@@ -52,7 +52,7 @@ const Home = () => {
       medium: 10.99,
       large: 12.99,
     },
-    variance: ['Small', 'Medium', 'Large'],
+    variants: ['Small', 'Medium', 'Large'],
   },
 ];
 

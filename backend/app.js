@@ -5,7 +5,11 @@ const app = express();
 const pizzaRoutes = require("./routes/pizzaRoute");
 
 // Middlewares
-app.use(cors());
+app.use(cors(
+  {
+    origin: process.env.FRONTEND_URL,
+  }
+));
 app.use(express.json());
 
 // Routes

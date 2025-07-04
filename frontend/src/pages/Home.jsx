@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import PizzaCard from "../components/PizzaCard";
-
+import Layout from "../components/Layout";
 const Home = () => {
   const [pizzaData, setPizzaData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +27,7 @@ const Home = () => {
   if (error) return <div className="p-6 text-red-500 text-center">{error}</div>;
 
   return (
+    <Layout>
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
       {pizzaData.length > 0 ? (
         pizzaData.map((pizza) => (
@@ -38,6 +39,7 @@ const Home = () => {
         </div>
       )}
     </div>
+    </Layout>
   );
 };
 

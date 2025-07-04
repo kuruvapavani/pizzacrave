@@ -1,15 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const Pizza = require('../models/pizzaModel');
+const express = require("express");
+const {
+  getPizzas,
+  getPizza,
+  createPizza,
+  updatePizza,
+  deletePizza,
+} = require("../controllers/pizzaController");
 
-router.get("/getpizzas",async (req,res)=>{
-  try {
-    const pizzas =await Pizza.find({});
-    res.status(200).json(pizzas);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: "Server Error" });
-  }
-})
+const router = express.Router();
+
+router.route("/").get(getPizzas).post(createPizza);
+router.route("/:id").get(getPizza).put(updatePizza).delete(deletePizza);
 
 module.exports = router;

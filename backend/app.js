@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 const pizzaRoutes = require("./routes/pizzaRoute");
@@ -17,7 +18,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Server Running Successfully');
 });
-app.use('/api',pizzaRoutes);
+app.use('/api/pizzas',pizzaRoutes);
 app.use('/api/users',userRoutes);
 
 module.exports = app;

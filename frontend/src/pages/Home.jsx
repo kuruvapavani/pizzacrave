@@ -10,7 +10,7 @@ const Home = () => {
   useEffect(() => {
     const fetchPizzas = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/getpizzas`);
+        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/pizzas`);
         setPizzaData(res.data);
       } catch (err) {
         console.error("Error fetching pizzas:", err);

@@ -1,0 +1,176 @@
+const Cart = require("../models/cartModel");
+const Pizza = require("../models/pizzaModel");
+
+// Add item to cart
+const addToCart = async (req, res) => {
+  try {
+    const { userid, pizzaid, variant, quantity } = req.body;
+
+    const pizza = await Pizza.findById(pizzaid);
+    if (!pizza) {
+      return res.status(404).json({ message: "Pizza not found" });
+    }
+
+    const price = pizza.price[variant];
+    const totalPrice = quantity * price;
+
+    const newItem = {
+      pizzaId: pizzaid,
+      name: pizza.name,
+      image: pizza.image,
+      variant,
+      quantity,
+      price: totalPrice,
+    };
+
+    let cart = await Cart.findOne({ userId: userid });
+
+    if (cart) {
+      const existingItemIndex = cart.items.findIndex(
+        (item) =>
+          item.pizzaId.toString() === pizzaid && item.variant === variant
+      );
+
+      if (existingItemIndex > -1) {
+        cart.items[existingItemIndex].quantity += quantity;
+        cart.items[existingItemIndex].price += totalPrice;
+      } else {
+        cart.items.push(newItem);
+      }
+
+      await cart.save();
+    } else {
+      cart = new Cart({
+        userId: userid,
+        items: [newItem],
+      });
+      await cart.save();
+    }
+
+    res.status(200).json({ message: "Item added to cart", cart });
+  } catch (error) {
+    console.error("Add to cart error:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+// Get user's cart
+const getCartByUserId = async (req, res) => {
+  try {
+    const { userid } = req.params;
+    const cart = await Cart.findOne({ userId: userid });
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    res.status(200).json(cart);
+  } catch (error) {
+    console.error("Get cart error:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+// Remove item from cart
+const removeFromCart = async (req, res) => {
+  try {
+    const { userid, pizzaid, variant } = req.body;
+
+    const cart = await Cart.findOne({ userId: userid });
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    cart.items = cart.items.filter(
+      (item) => item.pizzaId.toString() !== pizzaid || item.variant !== variant
+    );
+
+    await cart.save();
+
+    res.status(200).json({ message: "Item removed from cart", cart });
+  } catch (error) {
+    console.error("Remove from cart error:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+// Clear cart
+const clearCart = async (req, res) => {
+  try {
+    const { userid } = req.params;
+
+    const cart = await Cart.findOne({ userId: userid });
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    cart.items = [];
+    await cart.save();
+
+    res.status(200).json({ message: "Cart cleared", cart });
+  } catch (error) {
+    console.error("Clear cart error:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+// Update cart item (variant or quantity or pizza itself)
+const updateCartItem = async (req, res) => {
+  try {
+    const {
+      userid,
+      oldPizzaId,
+      oldVariant,
+      newPizzaId,
+      newVariant,
+      newQuantity,
+    } = req.body;
+
+    const cart = await Cart.findOne({ userId: userid });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const itemIndex = cart.items.findIndex(
+      (item) =>
+        item.pizzaId.toString() === oldPizzaId && item.variant === oldVariant
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: "Item not found in cart" });
+    }
+
+    const newPizza = await Pizza.findById(newPizzaId);
+    if (!newPizza) {
+      return res.status(404).json({ message: "New pizza not found" });
+    }
+
+    const newPrice = newPizza.price[newVariant];
+    const totalPrice = newPrice * newQuantity;
+
+    cart.items[itemIndex] = {
+      pizzaId: newPizzaId,
+      name: newPizza.name,
+      image: newPizza.image,
+      variant: newVariant,
+      quantity: newQuantity,
+      price: totalPrice,
+    };
+
+    await cart.save();
+    res.status(200).json({ message: "Cart item updated", cart });
+  } catch (error) {
+    console.error("Update cart item error:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+module.exports = {
+  addToCart,
+  getCartByUserId,
+  removeFromCart,
+  clearCart,
+  updateCartItem,
+};

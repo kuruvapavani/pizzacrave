@@ -1,35 +1,50 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/logo.png";
-import { faCartPlus, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faCartPlus, faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const isLoggedIn = localStorage.getItem("userToken");
-
 const Navbar = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  // Check auth on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear(); // or selectively remove auth items
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
+
   return (
     <nav className="navbar bg-white shadow-lg px-6 flex justify-between items-center w-full">
+      {/* Logo */}
       <div>
         <Link to="/">
-          <img src={Logo} alt="Logo" className="md:h-20 h-16 w-auto cursor-pointer pt-2" />
+          <img
+            src={Logo}
+            alt="Logo"
+            className="md:h-20 h-16 w-auto cursor-pointer pt-2"
+          />
         </Link>
       </div>
 
       {/* Right Section */}
       <div className="flex items-center space-x-6">
         {/* Cart Icon */}
-        <div className="relative cursor-pointer">
-          <Link to="/my-cart" aria-label="Shopping Cart">
-            <FontAwesomeIcon
-              icon={faCartPlus}
-              className="text-hero hover:text-hero-dark text-xl transition-all duration-300 ease-in-out"
-            />
-          </Link>
-        </div>
+        <Link to="/my-cart" aria-label="Shopping Cart">
+          <FontAwesomeIcon
+            icon={faCartPlus}
+            className="text-hero hover:text-hero-dark text-xl transition-all duration-300 ease-in-out"
+          />
+        </Link>
 
-        {/* Conditional Rendering */}
+        {/* Auth Buttons */}
         {!isLoggedIn ? (
-          // Login Button if not logged in
           <Link to="/login">
             <button
               className="bg-hero text-white md:px-6 md:py-2 px-4 py-1 text-sm md:text-base rounded-md 
@@ -40,14 +55,25 @@ const Navbar = () => {
             </button>
           </Link>
         ) : (
-          // Profile Icon if logged in
-          <Link to="/profile">
-            <FontAwesomeIcon
-              icon={faUser}
-              className="text-hero hover:text-hero-dark text-xl cursor-pointer transition-all duration-300 ease-in-out"
-              aria-label="Profile"
-            />
-          </Link>
+          <div className="flex items-center space-x-4">
+            {/* Profile Icon */}
+            <Link to="/profile" aria-label="Profile">
+              <FontAwesomeIcon
+                icon={faUser}
+                className="text-hero hover:text-hero-dark text-xl cursor-pointer transition-all duration-300 ease-in-out"
+              />
+            </Link>
+
+            {/* Logout Icon */}
+            <button
+              onClick={handleLogout}
+              aria-label="Logout"
+              className="text-hero hover:text-hero-dark text-xl transition-all duration-300 ease-in-out"
+              title="Logout"
+            >
+              <FontAwesomeIcon icon={faSignOutAlt} />
+            </button>
+          </div>
         )}
       </div>
     </nav>

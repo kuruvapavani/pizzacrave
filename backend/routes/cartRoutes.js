@@ -7,12 +7,14 @@ const {
   updateCartItem,
 } = require("../controllers/cartController");
 
+const authenticateUser = require("../config/auth");
+
 const router = express.Router();
 
-router.post("/add", addToCart);
-router.get("/:userid", getCartByUserId);
-router.delete("/remove", removeFromCart);
-router.delete("/clear/:userid", clearCart);
-router.put("/update", updateCartItem);
+router.post("/add", authenticateUser, addToCart);
+router.get("/:userid", authenticateUser, getCartByUserId);
+router.delete("/remove", authenticateUser, removeFromCart);
+router.delete("/clear/:userid", authenticateUser, clearCart);
+router.put("/update", authenticateUser, updateCartItem);
 
 module.exports = router;

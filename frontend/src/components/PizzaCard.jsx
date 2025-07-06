@@ -1,10 +1,47 @@
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
-
+import React, { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCartPlus } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 const PizzaCard = ({ pizza }) => {
   const [quantity, setQuantity] = useState(1);
-  const [variants, setvariants] = useState('small');
+  const [variants, setvariants] = useState("small");
+  const navigate = useNavigate();
+  const addToCart = async () => {
+    try {
+      const userToken = localStorage.getItem("authToken");
+      const userId = localStorage.getItem("id");
+
+      if (!userToken || !userId) {
+        navigate('/login');
+        return;
+      }
+
+      const res = await fetch(`${process.env.REACT_APP_BASE_URL}/api/cart/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({
+          userid: userId,
+          pizzaid: pizza._id,
+          variant: variants,
+          quantity: Number(quantity),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Item added to cart!");
+      } else {
+        alert(data.message || "Failed to add item.");
+      }
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
 
   return (
     <div className="flex flex-col bg-white shadow-lg rounded-lg p-4 w-68 mx-auto hover:shadow-xl transition-shadow duration-300">
@@ -46,7 +83,7 @@ const PizzaCard = ({ pizza }) => {
       </div>
       <div className="mt-6 flex justify-center">
         <button
-          disabled
+          onClick={addToCart}
           className="bg-hero text-white px-10 py-2 rounded-md flex items-center gap-2 hover:bg-opacity-90"
         >
           Add to Cart <FontAwesomeIcon icon={faCartPlus} />

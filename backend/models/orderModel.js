@@ -1,50 +1,47 @@
 const mongoose = require("mongoose");
 
-const orderSchema = mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-      required: true,
-    },
-    orderItems: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        image: {
-          type: String,
-        },
-        variant: {
-          type: String,
-          required: true,
-          enum: ["small", "medium", "large"],
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
-    totalAmount: {
-      type: Number,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["placed", "preparing", "delivered", "cancelled"],
-      default: "placed",
-    },
+const orderSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users",
+    required: true,
   },
-  {
-    timestamps: true,
-  }
-);
+  items: [
+    {
+      pizzaId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Pizza",
+        required: true,
+      },
+      name: String,
+      image: String,
+      variant: String,
+      quantity: Number,
+      price: Number,
+    },
+  ],
+  address: {
+    type: String,
+    required: true,
+  },
+  totalAmount: {
+    type: Number,
+    required: true,
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["Pending", "Paid", "Failed"],
+    default: "Pending",
+  },
+  orderStatus: {
+    type: String,
+    enum: ["Placed", "Preparing", "Ready to Deliver", "Out for Delivery", "Delivered", "Cancelled"],
+    default: "Placed",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-const Order = mongoose.model("orders", orderSchema);
-module.exports = Order;
+module.exports = mongoose.model("Order", orderSchema);

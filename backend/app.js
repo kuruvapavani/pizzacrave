@@ -6,6 +6,7 @@ const app = express();
 const pizzaRoutes = require("./routes/pizzaRoute");
 const userRoutes = require("./routes/userRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 // Middlewares
 app.use(
   cors({
@@ -21,4 +22,5 @@ app.get("/", (req, res) => {
 app.use("/api/pizzas", pizzaRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders",orderRoutes);
 module.exports = app;

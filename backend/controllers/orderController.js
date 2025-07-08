@@ -4,7 +4,9 @@ const Cart = require("../models/cartModel");
 // GET all orders (admin only)
 const getAllOrders = async (req, res) => {
   try {
-    const orderItems = await Order.find({}).populate("userId", "username email");
+    const orderItems = await Order.find({})
+      .populate("userId", "username email")
+      .sort({ createdAt: -1 });
 
     if (!orderItems || orderItems.length === 0) {
       return res.status(404).json({ message: "Orders not found" });
@@ -20,13 +22,9 @@ const getAllOrders = async (req, res) => {
 // GET orders for a specific user
 const getUserOrders = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const { userId } = req.params;
 
-    if (req.user.id !== userId && req.user.role !== "admin") {
-      return res.status(403).json({ message: "Access denied." });
-    }
-
-    const userOrders = await Order.find({ userId }).populate("items.pizzaId");
+    const userOrders = await Order.find({ userId }).sort({ createdAt: -1 });
 
     if (!userOrders || userOrders.length === 0) {
       return res.status(404).json({ message: "User orders not found" });
@@ -54,6 +52,13 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
+    // Sanitize pizza names
+    const sanitize = (name) => name.replace(/[^a-zA-Z0-9 ,]/g, "").trim();
+    const pizzaNames = cart.items
+      .map((item) => sanitize(item.name))
+      .filter((name) => name.length > 0)
+      .join(", ");
+
     const totalAmount = cart.items.reduce((sum, item) => sum + item.price, 0);
 
     const newOrder = new Order({
@@ -61,7 +66,8 @@ const placeOrder = async (req, res) => {
       items: cart.items,
       address,
       totalAmount,
-      orderStatus: "Placed", // Default
+      pizzaNames,
+      orderStatus: "Placed",
     });
 
     await newOrder.save();

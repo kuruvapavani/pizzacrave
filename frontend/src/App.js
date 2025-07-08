@@ -7,6 +7,7 @@ import MyCart from './pages/MyCart';
 import MyOrders from './pages/MyOrders';
 import OrderDetails from './pages/OrderDetails';
 import AdminDashboard from './pages/AdminDashboard';
+import UserProfile from './pages/UserProfile';
 function App() {
   return (
     <Router>
@@ -18,6 +19,7 @@ function App() {
           <Route path='/my-orders' element={<MyOrders />} />
           <Route path='/my-orders/:id' element={<OrderDetails />} />
           <Route path='/admin/dashboard' element={<AdminDashboard />} />
+          <Route path='/my-profile' element={<UserProfile />}/>
         </Routes>
     </Router>
   );

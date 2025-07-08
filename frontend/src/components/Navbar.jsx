@@ -57,7 +57,7 @@ const Navbar = () => {
         ) : (
           <div className="flex items-center space-x-4">
             {/* Profile Icon */}
-            <Link to="/profile" aria-label="Profile">
+            <Link to="/my-profile" aria-label="Profile">
               <FontAwesomeIcon
                 icon={faUser}
                 className="text-hero hover:text-hero-dark text-xl cursor-pointer transition-all duration-300 ease-in-out"

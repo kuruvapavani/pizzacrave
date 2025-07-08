@@ -58,7 +58,75 @@ const loginUser = async (req, res) => {
   }
 };
 
+const updateUsername = async (req, res) => {
+  const { newUsername, password } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) return res.status(401).json({ message: "Incorrect password" });
+
+    user.username = newUsername;
+    await user.save();
+
+    res.json({
+      message: "Username updated successfully",
+      username: user.username,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update username", error: error.message });
+  }
+};
+
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword, confirmNewPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) return res.status(401).json({ message: "Incorrect current password" });
+
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({ message: "New passwords do not match" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to change password", error: error.message });
+  }
+};
+
+const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password"); // exclude password
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ message: "Failed to fetch user profile" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  updateUsername,
+  changePassword,
+  getProfile
 };

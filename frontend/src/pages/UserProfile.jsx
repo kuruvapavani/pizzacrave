@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const UserProfile = () => {
+  const id = localStorage.getItem('id');
   const navigate = useNavigate();
   const [username, setUsername] = useState("Loading...");
   const [isUsernameModalOpen, setUsernameModalOpen] = useState(false);
@@ -35,7 +36,7 @@ const UserProfile = () => {
   const [usernameSuccess, setUsernameSuccess] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
-
+  const [isAdmin,setIsAdmin] = useState(false);
   const userToken = localStorage.getItem("authToken");
 
   useEffect(() => {
@@ -57,6 +58,22 @@ const UserProfile = () => {
 
     fetchProfile();
   }, [userToken]);
+
+  useEffect(() => {
+      const checkRole = async () => {
+        try {
+          const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/users/get-role/${id}`);
+          if (res.data.role === "admin") {
+            setIsAdmin(true);
+          }
+        } catch (err) {
+          console.error("Failed to fetch role:", err);
+          navigate("/");
+        }
+      };
+  
+      checkRole();
+    }, [id, navigate]);
 
   const handleUsernameUpdate = async () => {
     setUsernameError("");
@@ -110,6 +127,7 @@ const UserProfile = () => {
     }
 
     try {
+      // eslint-disable-next-line
       const res = await axios.put(
         `${process.env.REACT_APP_BASE_URL}/api/users/change-password`,
         {
@@ -171,6 +189,14 @@ const UserProfile = () => {
           >
             View My Orders
           </button>
+          {isAdmin && (
+            <button
+            onClick={() => navigate("/admin/dashboard")}
+            className="border border-hero text-hero px-4 py-2 rounded hover:bg-hero hover:text-white transition"
+          >
+            Go to Dashboard
+          </button>
+          )}
         </div>
       </div>
 

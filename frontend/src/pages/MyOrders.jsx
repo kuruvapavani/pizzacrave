@@ -37,16 +37,44 @@ const MyOrders = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    const userId = localStorage.getItem("id");
-    const userToken = localStorage.getItem("authToken");
 
-    if (!userId || !userToken) {
-      navigate("/login");
-      return;
+  useEffect(() => {
+  const userId = localStorage.getItem("id");
+  const userToken = localStorage.getItem("authToken");
+
+  if (!userId || !userToken) {
+    navigate("/login");
+    return;
+  }
+
+  const confirmStripeAndFetchOrders = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+
+    if (sessionId) {
+      try {
+        await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/api/payment/confirm-stripe`,
+          { sessionId },
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+        // Optional: Remove session_id from URL after confirming
+        window.history.replaceState({}, document.title, "/my-orders");
+      } catch (error) {
+        console.error("Stripe order confirmation failed:", error);
+      }
     }
+
     fetchOrders();
-  }, [navigate]);
+  };
+
+  confirmStripeAndFetchOrders();
+}, [navigate]);
+
 
   return (
     <Layout>

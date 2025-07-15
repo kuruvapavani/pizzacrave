@@ -1,6 +1,6 @@
 const Order = require("../models/orderModel");
 const Cart = require("../models/cartModel");
-
+const { placeOrderLogic } = require("../utils/placeOrderLogic");
 // GET all orders (admin only)
 const getAllOrders = async (req, res) => {
   try {
@@ -43,37 +43,7 @@ const placeOrder = async (req, res) => {
     const userId = req.user.id;
     const { address } = req.body;
 
-    if (!address) {
-      return res.status(400).json({ message: "Address is required" });
-    }
-
-    const cart = await Cart.findOne({ userId });
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
-    }
-
-    // Sanitize pizza names
-    const sanitize = (name) => name.replace(/[^a-zA-Z0-9 ,]/g, "").trim();
-    const pizzaNames = cart.items
-      .map((item) => sanitize(item.name))
-      .filter((name) => name.length > 0)
-      .join(", ");
-
-    const totalAmount = cart.items.reduce((sum, item) => sum + item.price, 0);
-
-    const newOrder = new Order({
-      userId,
-      items: cart.items,
-      address,
-      totalAmount,
-      pizzaNames,
-      orderStatus: "Placed",
-    });
-
-    await newOrder.save();
-
-    cart.items = [];
-    await cart.save();
+    const newOrder = await placeOrderLogic(userId, address, "Pending");
 
     res.status(201).json({
       message: "Order placed successfully from cart",
@@ -81,7 +51,7 @@ const placeOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Place Order Error:", error);
-    res.status(500).json({ message: "Something went wrong while placing the order" });
+    res.status(500).json({ message: error.message || "Something went wrong while placing the order" });
   }
 };
 

@@ -11,6 +11,7 @@ import UserProfile from "./pages/UserProfile";
 import ManagePizzas from "./pages/ManagePizzas";
 import ManageOrders from "./pages/ManageOrders";
 import Checkout from "./pages/Checkout";
+import VerifyEmail from "./pages/VerifyEmail";
 function App() {
   return (
     <Router>
@@ -26,6 +27,7 @@ function App() {
         <Route path="/admin/pizzas" element={<ManagePizzas />} />
         <Route path="/admin/orders" element={<ManageOrders />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
       </Routes>
     </Router>
   );

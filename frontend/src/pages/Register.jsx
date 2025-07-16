@@ -51,7 +51,8 @@ const Register = () => {
         }
       );
 
-      setSuccess(response.data.msg || "Registered successfully!");
+      setSuccess(response.data.message || "Please check your email to verify");
+      localStorage.setItem("unverifiedEmail", formData.email);
       setFormData({
         username: "",
         email: "",
@@ -76,8 +77,12 @@ const Register = () => {
         >
           <h1 className="text-4xl text-center text-hero mb-6">Sign Up</h1>
 
-          {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
-          {success && <p className="text-green-500 text-sm text-center mb-4">{success}</p>}
+          {error && (
+            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+          )}
+          {success && (
+            <p className="text-green-500 text-sm text-center mb-4">{success}</p>
+          )}
 
           {/* Username */}
           <div className="mb-4">

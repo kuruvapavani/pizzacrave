@@ -277,6 +277,97 @@ const resendVerificationEmail = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.resetToken = resetToken;
+    user.tokenExpiry = Date.now() + 1000 * 60 * 15;
+    await user.save();
+
+    const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    await sendEmail(
+  email,
+  "🔐 Reset Your Password",
+  `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <p>Hi <strong>${user.username}</strong>,</p>
+      
+      <p>We received a request to reset your password. To proceed, please click the link below:</p>
+      
+      <p>
+        <a href="${resetURL}" style="display: inline-block; padding: 10px 20px; background-color: #FFA527; color: white; text-decoration: none; border-radius: 6px;">
+          Reset Password
+        </a>
+      </p>
+
+      <p>If you didn’t request a password reset, you can safely ignore this email. Your account will remain secure.</p>
+
+      <p>Best regards,<br/>The Team</p>
+    </div>
+  `
+);
+
+
+    res.status(200).json({ message: "Reset password link sent to your email" });
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    res.status(500).json({ message: "Failed to send reset link", error: error.message });
+  }
+};
+
+const verifyResetToken = async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const user = await User.findOne({
+      resetToken: token,
+      tokenExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    res.status(200).json({ message: "Valid token" });
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({
+      resetToken: token,
+      tokenExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    user.password = newPassword;
+    user.resetToken = undefined;
+    user.tokenExpiry = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Password has been reset successfully" });
+  } catch (error) {
+    console.error("Password reset error:", error);
+    res.status(500).json({ message: "Reset failed", error: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -286,4 +377,7 @@ module.exports = {
   getRole,
   verifyEmail,
   resendVerificationEmail,
+  forgotPassword,
+  verifyResetToken,
+  resetPassword,
 };

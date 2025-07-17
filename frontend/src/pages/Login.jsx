@@ -105,6 +105,10 @@ const Login = () => {
             </button>
           </form>
 
+          <div className="text-right mt-2 text-sm text-gray-600">
+             <Link to='/forgot-password'>Forgot Password ? </Link>
+          </div>
+
           {/* Sign Up Redirect */}
           <div className="text-center mt-4 text-sm text-gray-600">
             Don't have an account?{" "}

@@ -28,6 +28,12 @@ const userSchema = mongoose.Schema(
     verificationToken: {
       type: String,
     },
+    resetToken:{
+      type: String,
+    },
+    tokenExpiry:{
+      type: Date,
+    }
   },
   {
     timestamps: true,

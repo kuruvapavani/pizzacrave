@@ -12,6 +12,9 @@ import ManagePizzas from "./pages/ManagePizzas";
 import ManageOrders from "./pages/ManageOrders";
 import Checkout from "./pages/Checkout";
 import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+
 function App() {
   return (
     <Router>
@@ -28,6 +31,8 @@ function App() {
         <Route path="/admin/orders" element={<ManageOrders />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </Router>
   );

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Leapfrog } from 'ldrs/react';
+import 'ldrs/react/Leapfrog.css';
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -8,6 +10,7 @@ export default function VerifyEmail() {
   const [loading, setLoading] = useState(true);
   const [showResend, setShowResend] = useState(false);
   const [resendStatus, setResendStatus] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
 
   const token = searchParams.get("token");
   const navigate = useNavigate();
@@ -55,7 +58,8 @@ export default function VerifyEmail() {
       return;
     }
 
-    setResendStatus("Sending...");
+    setResendStatus("");
+    setResendLoading(true);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/api/users/resend-verification`,
@@ -64,6 +68,8 @@ export default function VerifyEmail() {
       setResendStatus("✅ Verification email resent. Check your inbox.");
     } catch (err) {
       setResendStatus("❌ Failed to resend verification email.");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -72,8 +78,12 @@ export default function VerifyEmail() {
       <h2 className="text-2xl text-hero mb-4">Email Verification</h2>
 
       {loading ? (
-        <div className="flex items-center space-x-2">
-          <div className="animate-spin h-6 w-6 border-4 border-blue-400 border-t-transparent rounded-full" />
+        <div className="flex flex-col items-center space-y-2">
+          <Leapfrog
+            size="60"
+            speed="2.5"
+            color="#FFA527"
+          />
           <p className="text-blue-600">Verifying email...</p>
         </div>
       ) : (
@@ -84,9 +94,18 @@ export default function VerifyEmail() {
             <>
               <button
                 onClick={handleResend}
-                className="px-4 py-2 bg-hero text-white rounded"
+                className="px-4 py-2 bg-hero text-white rounded disabled:opacity-50"
+                disabled={resendLoading}
               >
-                Resend Verification Email
+                {resendLoading ? (
+                  <Leapfrog
+                    size="20"
+                    speed="2.5"
+                    color="#FFFFFF"
+                  />
+                ) : (
+                  "Resend Verification Email"
+                )}
               </button>
               {resendStatus && (
                 <p className="mt-2 text-sm text-gray-700">{resendStatus}</p>

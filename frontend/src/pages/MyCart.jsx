@@ -3,21 +3,30 @@ import Layout from "../components/Layout";
 import { useNavigate } from "react-router-dom";
 import MyCartPizzaCard from "../components/MyCartPizzaCard";
 import axios from "axios";
+import { Leapfrog } from 'ldrs/react';
+import 'ldrs/react/Leapfrog.css';
 
 const MyCart = () => {
   const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const placeOrder = async (params) => {
-    try {
-      navigate("/checkout");
-    } catch (error) {
-      console.log(error);
-    }
+
+  const placeOrder = async () => {
+    navigate("/checkout");
   };
 
   const fetchCart = async () => {
     const userId = localStorage.getItem("id");
     const userToken = localStorage.getItem("authToken");
+
+    if (!userId || !userToken) {
+      navigate("/login");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
 
     try {
       const res = await axios.get(
@@ -30,22 +39,41 @@ const MyCart = () => {
         }
       );
       setCartItems(res.data.items || []);
-    } catch (error) {
-      console.error("Error fetching cart items:", error);
+    } catch (err) {
+      console.error("Error fetching cart items:", err);
+      setError("Failed to load your cart. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const userId = localStorage.getItem("id");
-    const userToken = localStorage.getItem("authToken");
-
-    if (!userId || !userToken) {
-      navigate("/login");
-      return;
-    }
-
     fetchCart();
   }, [navigate]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-screen">
+          <Leapfrog
+            size="60"
+            speed="2.5"
+            color="#FFA527"
+          />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-screen text-red-500 text-lg">
+          {error}
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -55,7 +83,7 @@ const MyCart = () => {
       <div className="flex justify-center">
         {cartItems.length === 0 ? (
           <div className="text-center text-lg text-gray-500">
-            Your cart is empty.
+            Your cart is empty. Start adding some delicious pizzas!
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
@@ -75,14 +103,16 @@ const MyCart = () => {
           </div>
         )}
       </div>
-      <div className="flex justify-center mt-8">
-        <button
-          className="bg-hero text-white px-4 py-2 rounded rounded-xl"
-          onClick={placeOrder}
-        >
-          Place Order
-        </button>
-      </div>
+      {cartItems.length > 0 && (
+        <div className="flex justify-center mt-8">
+          <button
+            className="bg-hero text-white px-4 py-2 rounded rounded-xl"
+            onClick={placeOrder}
+          >
+            Place Order
+          </button>
+        </div>
+      )}
     </Layout>
   );
 };

@@ -3,35 +3,52 @@ import Layout from "../components/Layout";
 import MyOrderPizzaCard from "../components/MyOrderPizzaCard";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { Leapfrog } from "ldrs/react";
+import "ldrs/react/Leapfrog.css";
 
 const OrderDetails = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-  if (!id) return;
-
-  const fetchOrderDetails = async () => {
-    const userToken = localStorage.getItem("authToken");
-
-    try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/api/orders/details/${id}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
-      );
-      setOrder(res.data);
-    } catch (error) {
-      console.error("Failed to fetch order:", error);
+    if (!id) {
+      setLoading(false);
+      setError("No order ID provided.");
+      return;
     }
-  };
 
-  fetchOrderDetails();
-}, [id]);
+    const fetchOrderDetails = async () => {
+      const userToken = localStorage.getItem("authToken");
+
+      setLoading(true);
+      setError("");
+
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/api/orders/details/${id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+        setOrder(res.data);
+      } catch (err) {
+        console.error("Failed to fetch order:", err);
+        setError(
+          "Failed to load order details. Please try again or check if the order exists."
+        );
+        setOrder(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderDetails();
+  }, [id]);
 
   return (
     <Layout>
@@ -39,10 +56,24 @@ const OrderDetails = () => {
         Order Details
       </div>
 
-      {!order ? (
-        <div className="text-center text-lg text-gray-500">Loading...</div>
+      {loading ? (
+        <div className="flex justify-center items-center h-96">
+          {" "}
+          {/* Adjust height as needed */}
+          <Leapfrog size="60" speed="2.5" color="#FFA527" />
+        </div>
+      ) : error ? (
+        <div className="flex justify-center items-center h-96 text-red-500 text-lg text-center px-4">
+          {error}
+        </div>
+      ) : !order ? (
+        <div className="flex justify-center items-center h-96 text-lg text-gray-500 text-center px-4">
+          No order details found.
+        </div>
       ) : order.items.length === 0 ? (
-        <div className="text-center text-lg text-gray-500">No Order Found</div>
+        <div className="flex justify-center items-center h-96 text-lg text-gray-500 text-center px-4">
+          This order has no items.
+        </div>
       ) : (
         <>
           {/* Pizza Items */}

@@ -2,10 +2,15 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartPlus } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import { Leapfrog } from 'ldrs/react';
+import 'ldrs/react/Leapfrog.css';
+
 const PizzaCard = ({ pizza }) => {
   const [quantity, setQuantity] = useState(1);
-  const [variants, setvariants] = useState("small");
+  const [variants, setVariants] = useState("small");
+  const [imageLoading, setImageLoading] = useState(true);
   const navigate = useNavigate();
+
   const addToCart = async () => {
     try {
       const userToken = localStorage.getItem("authToken");
@@ -45,11 +50,21 @@ const PizzaCard = ({ pizza }) => {
 
   return (
     <div className="flex flex-col bg-white shadow-lg rounded-lg p-4 w-68 mx-auto hover:shadow-xl transition-shadow duration-300">
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mb-4 h-52"> {/* Added a fixed height to prevent layout shift */}
+        {imageLoading && (
+          <div className="flex items-center justify-center h-full">
+            <Leapfrog
+              size="40"
+              speed="2.5"
+              color="#FFA527"
+            />
+          </div>
+        )}
         <img
           src={pizza.image}
           alt={pizza.name}
-          className="h-52 w-auto object-cover rounded-md"
+          className={`h-full w-auto object-cover rounded-md ${imageLoading ? 'hidden' : 'block'}`}
+          onLoad={() => setImageLoading(false)}
         />
       </div>
       <div className="text-lg text-center mb-2">{pizza.name}</div>
@@ -60,7 +75,7 @@ const PizzaCard = ({ pizza }) => {
         <select
           className="border border-gray-300 rounded-md px-2 py-1"
           value={variants}
-          onChange={(e) => setvariants(e.target.value)}
+          onChange={(e) => setVariants(e.target.value)}
         >
           {pizza.variants?.map((size, index) => (
             <option key={index} value={size.toLowerCase()}>

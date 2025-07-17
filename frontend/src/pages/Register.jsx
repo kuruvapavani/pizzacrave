@@ -4,6 +4,8 @@ import axios from "axios";
 import loginPizza from "../assets/image.png";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Leapfrog } from 'ldrs/react';
+import 'ldrs/react/Leapfrog.css'; 
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +18,7 @@ const Register = () => {
   const [showPassword1, setShowPassword1] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -35,9 +38,11 @@ const Register = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
+      setLoading(false);
       return;
     }
 
@@ -65,6 +70,8 @@ const Register = () => {
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong.");
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -83,80 +90,92 @@ const Register = () => {
           {success && (
             <p className="text-green-500 text-sm text-center mb-4">{success}</p>
           )}
+          {loading ? (
+            <div className="flex justify-center items-center h-24">
+              <Leapfrog
+                size="40"
+                speed="2.5"
+                color="#FFA527"
+              />
+            </div>
+          ) : (
+            <>
+              {/* Username */}
+              <div className="mb-4">
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="Enter username"
+                  autoComplete="off"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="w-full border-2 border-hero rounded-md focus:outline-none focus:ring-2 focus:ring-hero px-4 py-2 placeholder-gray-350 text-gray-600 text-sm"
+                />
+              </div>
 
-          {/* Username */}
-          <div className="mb-4">
-            <input
-              id="username"
-              name="username"
-              type="text"
-              placeholder="Enter username"
-              autoComplete="off"
-              value={formData.username}
-              onChange={handleChange}
-              className="w-full border-2 border-hero rounded-md focus:outline-none focus:ring-2 focus:ring-hero px-4 py-2 placeholder-gray-350 text-gray-600 text-sm"
-            />
-          </div>
+              {/* Email */}
+              <div className="mb-4">
+                <input
+                  id="email"
+                  name="email"
+                  type="text"
+                  placeholder="Enter email"
+                  autoComplete="off"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full border-2 border-hero rounded-md focus:outline-none focus:ring-2 focus:ring-hero px-4 py-2 placeholder-gray-350 text-gray-600 text-sm"
+                />
+              </div>
 
-          {/* Email */}
-          <div className="mb-4">
-            <input
-              id="email"
-              name="email"
-              type="text"
-              placeholder="Enter email"
-              autoComplete="off"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full border-2 border-hero rounded-md focus:outline-none focus:ring-2 focus:ring-hero px-4 py-2 placeholder-gray-350 text-gray-600 text-sm"
-            />
-          </div>
+              {/* Password */}
+              <div className="mb-4 flex items-center border-2 border-hero rounded-md focus-within:ring-2 focus-within:ring-hero">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="off"
+                  placeholder="Enter Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 placeholder-gray-400 text-sm text-gray-600 border-none outline-none"
+                />
+                <FontAwesomeIcon
+                  icon={showPassword ? faEye : faEyeSlash}
+                  className="text-gray-600 cursor-pointer px-2"
+                  onClick={togglePasswordVisibility}
+                />
+              </div>
 
-          {/* Password */}
-          <div className="mb-4 flex items-center border-2 border-hero rounded-md focus-within:ring-2 focus-within:ring-hero">
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              autoComplete="off"
-              placeholder="Enter Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 placeholder-gray-400 text-sm text-gray-600 border-none outline-none"
-            />
-            <FontAwesomeIcon
-              icon={showPassword ? faEye : faEyeSlash}
-              className="text-gray-600 cursor-pointer px-2"
-              onClick={togglePasswordVisibility}
-            />
-          </div>
+              {/* Confirm Password */}
+              <div className="mb-4 flex items-center border-2 border-hero rounded-md focus-within:ring-2 focus-within:ring-hero">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showPassword1 ? "text" : "password"}
+                  autoComplete="off"
+                  placeholder="Enter Password Again"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 placeholder-gray-400 text-sm text-gray-600 border-none outline-none"
+                />
+                <FontAwesomeIcon
+                  icon={showPassword1 ? faEye : faEyeSlash}
+                  className="text-gray-600 cursor-pointer px-2"
+                  onClick={togglePasswordVisibility1}
+                />
+              </div>
 
-          {/* Confirm Password */}
-          <div className="mb-4 flex items-center border-2 border-hero rounded-md focus-within:ring-2 focus-within:ring-hero">
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showPassword1 ? "text" : "password"}
-              autoComplete="off"
-              placeholder="Enter Password Again"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full px-4 py-2 placeholder-gray-400 text-sm text-gray-600 border-none outline-none"
-            />
-            <FontAwesomeIcon
-              icon={showPassword1 ? faEye : faEyeSlash}
-              className="text-gray-600 cursor-pointer px-2"
-              onClick={togglePasswordVisibility1}
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-hero hover:bg-hero-opacity-75 text-white rounded-md py-2 transition duration-300 ease-in-out"
-          >
-            Sign Up
-          </button>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="w-full bg-hero hover:bg-hero-opacity-75 text-white rounded-md py-2 transition duration-300 ease-in-out"
+                disabled={loading}
+              >
+                Sign Up
+              </button>
+            </>
+          )}
 
           {/* Login Link */}
           <div className="text-center mt-4 text-sm text-gray-600">

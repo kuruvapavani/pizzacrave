@@ -8,6 +8,8 @@ import {
   faTrash,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
+import { Leapfrog } from 'ldrs/react';
+import 'ldrs/react/Leapfrog.css';
 
 const ManagePizzas = () => {
   const navigate = useNavigate();
@@ -27,18 +29,36 @@ const ManagePizzas = () => {
     },
   });
 
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+
   useEffect(() => {
-    const checkRole = async () => {
+    const checkRoleAndFetchPizzas = async () => {
+      setInitialLoading(true);
       try {
-        const res = await axios.get(
+        const roleRes = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/api/users/get-role/${id}`
         );
-        if (res.data.role !== "admin") navigate("/");
+        if (roleRes.data.role !== "admin") {
+          navigate("/");
+          return;
+        }
+
+        const pizzasRes = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/pizzas`);
+        setPizzas(pizzasRes.data);
       } catch (err) {
+        console.error("Failed to fetch data:", err);
         navigate("/");
+      } finally {
+        setInitialLoading(false);
       }
     };
-    checkRole();
+
+    if (id) {
+      checkRoleAndFetchPizzas();
+    } else {
+      navigate("/login");
+    }
   }, [id, navigate]);
 
   const fetchPizzas = async () => {
@@ -49,10 +69,6 @@ const ManagePizzas = () => {
       console.error("Failed to fetch pizzas:", error);
     }
   };
-
-  useEffect(() => {
-    fetchPizzas();
-  }, []);
 
   const handleEditClick = (pizza) => {
     setSelectedPizza(pizza);
@@ -65,6 +81,7 @@ const ManagePizzas = () => {
   };
 
   const handleUpdatePizza = async () => {
+    setActionLoading(true);
     try {
       await axios.put(
         `${process.env.REACT_APP_BASE_URL}/api/pizzas/${selectedPizza._id}`,
@@ -78,18 +95,23 @@ const ManagePizzas = () => {
       setShowEditModal(false);
     } catch (error) {
       console.error("Error updating pizza:", error);
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleDeletePizza = async (pizzaId) => {
     const confirm = window.confirm("Are you sure you want to delete this pizza?");
     if (!confirm) return;
+    setActionLoading(true);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/pizzas/${pizzaId}`);
       alert("Pizza deleted");
       fetchPizzas();
     } catch (error) {
       console.error("Delete error:", error);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -104,6 +126,7 @@ const ManagePizzas = () => {
   };
 
   const handleAddPizza = async () => {
+    setActionLoading(true);
     try {
       await axios.post(`${process.env.REACT_APP_BASE_URL}/api/pizzas`, {
         ...formData,
@@ -114,8 +137,24 @@ const ManagePizzas = () => {
       setShowAddModal(false);
     } catch (error) {
       console.error("Error adding pizza:", error);
+    } finally {
+      setActionLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-screen">
+          <Leapfrog
+            size="60"
+            speed="2.5"
+            color="#FFA527"
+          />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -124,7 +163,8 @@ const ManagePizzas = () => {
           <h2 className="text-3xl text-hero">Manage Pizzas</h2>
           <button
             onClick={handleAddClick}
-            className="bg-hero text-white px-4 py-2 rounded flex items-center gap-2"
+            className="bg-hero text-white px-4 py-2 rounded flex items-center gap-2 disabled:opacity-50"
+            disabled={actionLoading}
           >
             <FontAwesomeIcon icon={faPlus} />
             Add Pizza
@@ -143,48 +183,55 @@ const ManagePizzas = () => {
               </tr>
             </thead>
             <tbody>
-              {pizzas.map((pizza) => (
-                <tr key={pizza._id} className="border-t">
-                  <td className="py-3 px-4">
-                    <img
-                      src={pizza.image}
-                      alt={pizza.name}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                  </td>
-                  <td className="py-3 px-4">{pizza.name}</td>
-                  <td className="py-3 px-4">small, medium, large</td>
-                  <td className="py-3 px-4">
-                    Small: ₹{pizza.price.small} <br />
-                    Medium: ₹{pizza.price.medium} <br />
-                    Large: ₹{pizza.price.large}
-                  </td>
-                  <td className="py-3 px-4 space-x-4">
-                    <button
-                      onClick={() => handleEditClick(pizza)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <FontAwesomeIcon icon={faPenToSquare} />
-                    </button>
-                    <button
-                      onClick={() => handleDeletePizza(pizza._id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </td>
+              {pizzas.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-4 text-center text-gray-500">No pizzas found.</td>
                 </tr>
-              ))}
+              ) : (
+                pizzas.map((pizza) => (
+                  <tr key={pizza._id} className="border-t">
+                    <td className="py-3 px-4">
+                      <img
+                        src={pizza.image}
+                        alt={pizza.name}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                    </td>
+                    <td className="py-3 px-4">{pizza.name}</td>
+                    <td className="py-3 px-4">small, medium, large</td>
+                    <td className="py-3 px-4">
+                      Small: ₹{pizza.price.small} <br />
+                      Medium: ₹{pizza.price.medium} <br />
+                      Large: ₹{pizza.price.large}
+                    </td>
+                    <td className="py-3 px-4 space-x-4">
+                      <button
+                        onClick={() => handleEditClick(pizza)}
+                        className="text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                        disabled={actionLoading}
+                      >
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      </button>
+                      <button
+                        onClick={() => handleDeletePizza(pizza._id)}
+                        className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                        disabled={actionLoading}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Modal (Edit & Add use same structure) */}
       {(showEditModal || showAddModal) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-lg">
-            <h2 className="text-xl  mb-4">
+            <h2 className="text-xl mb-4">
               {showEditModal ? "Edit Pizza" : "Add Pizza"}
             </h2>
 
@@ -194,6 +241,7 @@ const ManagePizzas = () => {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full border px-3 py-2 rounded mb-3"
+              disabled={actionLoading}
             />
             <input
               type="text"
@@ -201,6 +249,7 @@ const ManagePizzas = () => {
               value={formData.image}
               onChange={(e) => setFormData({ ...formData, image: e.target.value })}
               className="w-full border px-3 py-2 rounded mb-3"
+              disabled={actionLoading}
             />
             <div className="flex gap-2 mb-3">
               <input
@@ -214,6 +263,7 @@ const ManagePizzas = () => {
                   })
                 }
                 className="w-full border px-3 py-2 rounded"
+                disabled={actionLoading}
               />
               <input
                 type="number"
@@ -226,6 +276,7 @@ const ManagePizzas = () => {
                   })
                 }
                 className="w-full border px-3 py-2 rounded"
+                disabled={actionLoading}
               />
               <input
                 type="number"
@@ -238,6 +289,7 @@ const ManagePizzas = () => {
                   })
                 }
                 className="w-full border px-3 py-2 rounded"
+                disabled={actionLoading}
               />
             </div>
 
@@ -248,14 +300,24 @@ const ManagePizzas = () => {
                   setShowAddModal(false);
                 }}
                 className="px-4 py-2 border rounded"
+                disabled={actionLoading}
               >
                 Cancel
               </button>
               <button
                 onClick={showEditModal ? handleUpdatePizza : handleAddPizza}
-                className="bg-hero text-white px-4 py-2 rounded"
+                className="bg-hero text-white px-4 py-2 rounded disabled:opacity-50"
+                disabled={actionLoading}
               >
-                {showEditModal ? "Update" : "Add"}
+                {actionLoading ? (
+                  <Leapfrog
+                    size="20"
+                    speed="2.5"
+                    color="#FFFFFF"
+                  />
+                ) : (
+                  showEditModal ? "Update" : "Add"
+                )}
               </button>
             </div>
           </div>

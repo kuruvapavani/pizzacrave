@@ -9,15 +9,16 @@ import {
   faEye,
   faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
+import { Leapfrog } from "ldrs/react";
+import "ldrs/react/Leapfrog.css";
 
 const UserProfile = () => {
-  const id = localStorage.getItem('id');
+  const id = localStorage.getItem("id");
   const navigate = useNavigate();
-  const [username, setUsername] = useState("Loading...");
+  const [username, setUsername] = useState("");
   const [isUsernameModalOpen, setUsernameModalOpen] = useState(false);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
 
-  // Form state
   const [newUsername, setNewUsername] = useState("");
   const [usernamePassword, setUsernamePassword] = useState("");
 
@@ -25,24 +26,27 @@ const UserProfile = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
-  // Toggle visibility
   const [showUsernamePassword, setShowUsernamePassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
-  // Feedback messages
   const [usernameError, setUsernameError] = useState("");
   const [usernameSuccess, setUsernameSuccess] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
-  const [isAdmin,setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const userToken = localStorage.getItem("authToken");
 
+  const [profileLoading, setProfileLoading] = useState(true); // Initial load for profile data
+  const [usernameUpdateLoading, setUsernameUpdateLoading] = useState(false); // For username update
+  const [passwordUpdateLoading, setPasswordUpdateLoading] = useState(false); // For password update
+
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfileAndRole = async () => {
+      setProfileLoading(true);
       try {
-        const res = await axios.get(
+        const profileRes = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/api/users/my-profile`,
           {
             headers: {
@@ -50,30 +54,28 @@ const UserProfile = () => {
             },
           }
         );
-        setUsername(res.data.username);
+        setUsername(profileRes.data.username);
+
+        const roleRes = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/api/users/get-role/${id}`
+        );
+        if (roleRes.data.role === "admin") {
+          setIsAdmin(true);
+        }
       } catch (err) {
-        console.error("Failed to fetch profile:", err);
+        console.error("Failed to fetch profile or role:", err);
+        navigate("/login");
+      } finally {
+        setProfileLoading(false);
       }
     };
 
-    fetchProfile();
-  }, [userToken]);
-
-  useEffect(() => {
-      const checkRole = async () => {
-        try {
-          const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/users/get-role/${id}`);
-          if (res.data.role === "admin") {
-            setIsAdmin(true);
-          }
-        } catch (err) {
-          console.error("Failed to fetch role:", err);
-          navigate("/");
-        }
-      };
-  
-      checkRole();
-    }, [id, navigate]);
+    if (userToken && id) {
+      fetchProfileAndRole();
+    } else {
+      navigate("/login");
+    }
+  }, [userToken, id, navigate]);
 
   const handleUsernameUpdate = async () => {
     setUsernameError("");
@@ -83,6 +85,8 @@ const UserProfile = () => {
       setUsernameError("Please fill all fields");
       return;
     }
+
+    setUsernameUpdateLoading(true);
 
     try {
       const res = await axios.put(
@@ -108,7 +112,11 @@ const UserProfile = () => {
         setUsernameSuccess("");
       }, 1000);
     } catch (err) {
-      setUsernameError(err.response?.data?.message || "Failed to update username");
+      setUsernameError(
+        err.response?.data?.message || "Failed to update username"
+      );
+    } finally {
+      setUsernameUpdateLoading(false);
     }
   };
 
@@ -126,8 +134,9 @@ const UserProfile = () => {
       return;
     }
 
+    setPasswordUpdateLoading(true);
+
     try {
-      // eslint-disable-next-line
       const res = await axios.put(
         `${process.env.REACT_APP_BASE_URL}/api/users/change-password`,
         {
@@ -152,61 +161,69 @@ const UserProfile = () => {
         setPasswordSuccess("");
       }, 1000);
     } catch (err) {
-      setPasswordError(err.response?.data?.message || "Failed to change password");
+      setPasswordError(
+        err.response?.data?.message || "Failed to change password"
+      );
+    } finally {
+      setPasswordUpdateLoading(false);
     }
   };
 
   return (
     <Layout>
-      <div className="flex flex-col items-center mt-10 px-4">
-        {/* Profile Icon */}
-        <div className="w-32 h-32 flex items-center justify-center rounded-full border-4 border-hero mb-6">
-          <FontAwesomeIcon icon={faUser} className="text-hero w-16 h-16" />
+      {profileLoading ? (
+        <div className="flex justify-center items-center h-screen">
+          <Leapfrog size="60" speed="2.5" color="#FFA527" />
         </div>
+      ) : (
+        <div className="flex flex-col items-center mt-10 px-4">
+          <div className="w-32 h-32 flex items-center justify-center rounded-full border-4 border-hero mb-6">
+            <FontAwesomeIcon icon={faUser} className="text-hero w-16 h-16" />
+          </div>
 
-        {/* Username Display */}
-        <div className="flex items-center gap-2 text-lg font-medium mb-6">
-          <span>{username}</span>
-          <FontAwesomeIcon
-            icon={faPenToSquare}
-            className="text-hero cursor-pointer"
-            onClick={() => setUsernameModalOpen(true)}
-          />
-        </div>
+          <div className="flex items-center gap-2 text-lg font-medium mb-6">
+            <span>{username}</span>
+            <FontAwesomeIcon
+              icon={faPenToSquare}
+              className="text-hero cursor-pointer"
+              onClick={() => setUsernameModalOpen(true)}
+            />
+          </div>
 
-        {/* Buttons */}
-        <div className="flex flex-col items-center gap-4">
-          <button
-            onClick={() => setPasswordModalOpen(true)}
-            className="bg-hero text-white px-4 py-2 rounded hover:opacity-90 transition"
-          >
-            Edit Password
-          </button>
-
-          <button
-            onClick={() => navigate("/my-orders")}
-            className="border border-hero text-hero px-4 py-2 rounded hover:bg-hero hover:text-white transition"
-          >
-            View My Orders
-          </button>
-          {isAdmin && (
+          <div className="flex flex-col items-center gap-4">
             <button
-            onClick={() => navigate("/admin/dashboard")}
-            className="border border-hero text-hero px-4 py-2 rounded hover:bg-hero hover:text-white transition"
-          >
-            Go to Dashboard
-          </button>
-          )}
-        </div>
-      </div>
+              onClick={() => setPasswordModalOpen(true)}
+              className="bg-hero text-white px-4 py-2 rounded hover:opacity-90 transition"
+            >
+              Edit Password
+            </button>
 
-      {/* Username Modal */}
+            <button
+              onClick={() => navigate("/my-orders")}
+              className="border border-hero text-hero px-4 py-2 rounded hover:bg-hero hover:text-white transition"
+            >
+              View My Orders
+            </button>
+            {isAdmin && (
+              <button
+                onClick={() => navigate("/admin/dashboard")}
+                className="border border-hero text-hero px-4 py-2 rounded hover:bg-hero hover:text-white transition"
+              >
+                Go to Dashboard
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {isUsernameModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 className="text-xl text-hero mb-4">Update Username</h2>
 
-            {usernameError && <p className="text-red-500 mb-4">{usernameError}</p>}
+            {usernameError && (
+              <p className="text-red-500 mb-4">{usernameError}</p>
+            )}
             {usernameSuccess && (
               <p className="text-green-600 mb-4">{usernameSuccess}</p>
             )}
@@ -217,6 +234,7 @@ const UserProfile = () => {
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
               className="w-full border px-3 py-2 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-hero"
+              disabled={usernameUpdateLoading}
             />
 
             <div className="relative mb-4">
@@ -226,6 +244,7 @@ const UserProfile = () => {
                 value={usernamePassword}
                 onChange={(e) => setUsernamePassword(e.target.value)}
                 className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-hero"
+                disabled={usernameUpdateLoading}
               />
               <FontAwesomeIcon
                 icon={showUsernamePassword ? faEyeSlash : faEye}
@@ -238,32 +257,38 @@ const UserProfile = () => {
               <button
                 onClick={() => setUsernameModalOpen(false)}
                 className="px-4 py-2 border rounded"
+                disabled={usernameUpdateLoading}
               >
                 Cancel
               </button>
               <button
                 onClick={handleUsernameUpdate}
-                className="bg-hero text-white px-4 py-2 rounded"
+                className="bg-hero text-white px-4 py-2 rounded disabled:opacity-50"
+                disabled={usernameUpdateLoading}
               >
-                Update
+                {usernameUpdateLoading ? (
+                  <Leapfrog size="20" speed="2.5" color="#FFFFFF" />
+                ) : (
+                  "Update"
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Password Modal */}
       {isPasswordModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 className="text-xl text-hero mb-4">Change Password</h2>
 
-            {passwordError && <p className="text-red-500 mb-4">{passwordError}</p>}
+            {passwordError && (
+              <p className="text-red-500 mb-4">{passwordError}</p>
+            )}
             {passwordSuccess && (
               <p className="text-green-600 mb-4">{passwordSuccess}</p>
             )}
 
-            {/* Current Password */}
             <div className="relative mb-4">
               <input
                 type={showCurrentPassword ? "text" : "password"}
@@ -271,6 +296,7 @@ const UserProfile = () => {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-hero"
+                disabled={passwordUpdateLoading}
               />
               <FontAwesomeIcon
                 icon={showCurrentPassword ? faEyeSlash : faEye}
@@ -279,7 +305,6 @@ const UserProfile = () => {
               />
             </div>
 
-            {/* New Password */}
             <div className="relative mb-4">
               <input
                 type={showNewPassword ? "text" : "password"}
@@ -287,6 +312,7 @@ const UserProfile = () => {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-hero"
+                disabled={passwordUpdateLoading}
               />
               <FontAwesomeIcon
                 icon={showNewPassword ? faEyeSlash : faEye}
@@ -295,7 +321,6 @@ const UserProfile = () => {
               />
             </div>
 
-            {/* Confirm New Password */}
             <div className="relative mb-4">
               <input
                 type={showConfirmNewPassword ? "text" : "password"}
@@ -303,10 +328,13 @@ const UserProfile = () => {
                 value={confirmNewPassword}
                 onChange={(e) => setConfirmNewPassword(e.target.value)}
                 className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-hero"
+                disabled={passwordUpdateLoading}
               />
               <FontAwesomeIcon
                 icon={showConfirmNewPassword ? faEyeSlash : faEye}
-                onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                onClick={() =>
+                  setShowConfirmNewPassword(!showConfirmNewPassword)
+                }
                 className="absolute right-3 top-3 text-gray-500 cursor-pointer"
               />
             </div>
@@ -315,14 +343,20 @@ const UserProfile = () => {
               <button
                 onClick={() => setPasswordModalOpen(false)}
                 className="px-4 py-2 border rounded"
+                disabled={passwordUpdateLoading}
               >
                 Cancel
               </button>
               <button
                 onClick={handlePasswordUpdate}
-                className="bg-hero text-white px-4 py-2 rounded"
+                className="bg-hero text-white px-4 py-2 rounded disabled:opacity-50"
+                disabled={passwordUpdateLoading}
               >
-                Update
+                {passwordUpdateLoading ? (
+                  <Leapfrog size="20" speed="2.5" color="#FFFFFF" />
+                ) : (
+                  "Update"
+                )}
               </button>
             </div>
           </div>

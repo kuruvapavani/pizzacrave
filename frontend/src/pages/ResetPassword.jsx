@@ -3,27 +3,34 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Leapfrog } from 'ldrs/react';
+import 'ldrs/react/Leapfrog.css';
 
 const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
 
   const [isValidToken, setIsValidToken] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword1, setShowPassword1] = useState(false);
 
   useEffect(() => {
     const verifyToken = async () => {
+      setInitialLoading(true);
       try {
         await axios.get(`${process.env.REACT_APP_BASE_URL}/api/users/verify-reset-token/${token}`);
         setIsValidToken(true);
       } catch (err) {
         setError("Invalid or expired reset link.");
+      } finally {
+        setInitialLoading(false);
       }
     };
 
@@ -34,8 +41,10 @@ const ResetPassword = () => {
     e.preventDefault();
     setMessage("");
     setError("");
+    setSubmitLoading(true);
 
     if (newPassword !== confirmPassword) {
+      setSubmitLoading(false);
       return setError("Passwords do not match");
     }
 
@@ -43,6 +52,7 @@ const ResetPassword = () => {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,}$/;
 
     if (!passwordRegex.test(newPassword)) {
+      setSubmitLoading(false);
       return setError(
         "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
       );
@@ -54,13 +64,28 @@ const ResetPassword = () => {
         { newPassword }
       );
       setMessage(res.data.message);
+      localStorage.clear();
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setSubmitLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <Leapfrog
+          size="60"
+          speed="2.5"
+          color="#FFA527"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex justify-center items-center px-4">
@@ -73,7 +98,6 @@ const ResetPassword = () => {
           <p className="text-red-600 text-center">{error}</p>
         ) : (
           <>
-            {/* New Password */}
             <div className="mb-4 relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -82,6 +106,7 @@ const ResetPassword = () => {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
+                disabled={submitLoading}
               />
               <FontAwesomeIcon
                 icon={showPassword ? faEyeSlash : faEye}
@@ -90,7 +115,6 @@ const ResetPassword = () => {
               />
             </div>
 
-            {/* Confirm Password */}
             <div className="mb-4 relative">
               <input
                 type={showPassword1 ? "text" : "password"}
@@ -99,6 +123,7 @@ const ResetPassword = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                disabled={submitLoading}
               />
               <FontAwesomeIcon
                 icon={showPassword1 ? faEyeSlash : faEye}
@@ -107,17 +132,24 @@ const ResetPassword = () => {
               />
             </div>
 
-            {/* Submit Button */}
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="py-2 px-6 bg-hero text-white rounded-xl mt-6 hover:bg-opacity-90"
+                className="py-2 px-6 bg-hero text-white rounded-xl mt-6 hover:bg-opacity-90 disabled:opacity-50"
+                disabled={submitLoading}
               >
-                Reset Password
+                {submitLoading ? (
+                  <Leapfrog
+                    size="20"
+                    speed="2.5"
+                    color="#FFFFFF"
+                  />
+                ) : (
+                  "Reset Password"
+                )}
               </button>
             </div>
 
-            {/* Messages */}
             {message && (
               <p className="text-green-600 text-center mt-4">{message}</p>
             )}

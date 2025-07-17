@@ -14,27 +14,31 @@ import Checkout from "./pages/Checkout";
 import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import { Toaster } from "sonner";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/my-cart" element={<MyCart />} />
-        <Route path="/my-orders" element={<MyOrders />} />
-        <Route path="/my-orders/:id" element={<OrderDetails />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/my-profile" element={<UserProfile />} />
-        <Route path="/admin/pizzas" element={<ManagePizzas />} />
-        <Route path="/admin/orders" element={<ManageOrders />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-      </Routes>
-    </Router>
+    <>
+      <Toaster richColors position="bottom-right" />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/my-cart" element={<MyCart />} />
+          <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/my-orders/:id" element={<OrderDetails />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/my-profile" element={<UserProfile />} />
+          <Route path="/admin/pizzas" element={<ManagePizzas />} />
+          <Route path="/admin/orders" element={<ManageOrders />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 

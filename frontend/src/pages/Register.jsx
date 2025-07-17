@@ -5,7 +5,8 @@ import loginPizza from "../assets/image.png";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Leapfrog } from 'ldrs/react';
-import 'ldrs/react/Leapfrog.css'; 
+import 'ldrs/react/Leapfrog.css';
+import { toast } from 'sonner';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -16,8 +17,6 @@ const Register = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword1, setShowPassword1] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -36,12 +35,10 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      toast.error("Passwords do not match.");
       setLoading(false);
       return;
     }
@@ -56,7 +53,7 @@ const Register = () => {
         }
       );
 
-      setSuccess(response.data.message || "Please check your email to verify");
+      toast.success(response.data.message || "Please check your email to verify");
       localStorage.setItem("unverifiedEmail", formData.email);
       setFormData({
         username: "",
@@ -69,9 +66,9 @@ const Register = () => {
         navigate("/login");
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong.");
+      toast.error(err.response?.data?.message || "Something went wrong.");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -84,12 +81,6 @@ const Register = () => {
         >
           <h1 className="text-4xl text-center text-hero mb-6">Sign Up</h1>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
-          )}
-          {success && (
-            <p className="text-green-500 text-sm text-center mb-4">{success}</p>
-          )}
           {loading ? (
             <div className="flex justify-center items-center h-24">
               <Leapfrog

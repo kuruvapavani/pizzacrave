@@ -7,12 +7,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { Leapfrog } from "ldrs/react";
 import "ldrs/react/Leapfrog.css";
+import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -20,16 +20,15 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const getToken = localStorage.getItem("authToken");
-      if(getToken){
-        navigate('/');
-      }
-  },[navigate])
-  
+    if (getToken) {
+      navigate("/");
+    }
+  }, [navigate]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
     setLoading(true);
 
     try {
@@ -38,19 +37,20 @@ const Login = () => {
         { email, password }
       );
 
-      const { _id, token,username } = response.data;
+      const { _id, token, username } = response.data;
 
       // Store token and user info
       localStorage.setItem("authToken", token);
       localStorage.setItem("username", username);
       localStorage.setItem("id", _id);
 
+      toast.success(`Welcome back, ${username}!`);
       navigate("/");
     } catch (error) {
       if (error.response && error.response.data.message) {
-        setErrorMessage(error.response.data.message);
+        toast.error(error.response.data.message);
       } else {
-        setErrorMessage("An error occurred. Please try again.");
+        toast.error("An error occurred. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -71,12 +71,7 @@ const Login = () => {
         <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-sm">
           <h1 className="text-4xl text-center text-hero mb-6">Sign In</h1>
 
-          {/* Error Message */}
-          {errorMessage && (
-            <p className="text-red-500 text-center mb-4">{errorMessage}</p>
-          )}
-
-          {/* Conditional rendering of the spinner */}
+          {/* Spinner or Form */}
           {loading ? (
             <div className="flex justify-center items-center h-24">
               <Leapfrog size="40" speed="2.5" color="#FFA527" />
@@ -118,7 +113,7 @@ const Login = () => {
               <button
                 type="submit"
                 className="w-full bg-hero hover:bg-hero-opacity-75 text-white rounded-md py-2 transition duration-300 ease-in-out"
-                disabled={loading} // Disable button while loading
+                disabled={loading}
               >
                 Sign In
               </button>
@@ -126,7 +121,7 @@ const Login = () => {
           )}
 
           <div className="text-right mt-2 text-sm text-gray-600">
-            <Link to="/forgot-password">Forgot Password ? </Link>
+            <Link to="/forgot-password">Forgot Password?</Link>
           </div>
 
           {/* Sign Up Redirect */}

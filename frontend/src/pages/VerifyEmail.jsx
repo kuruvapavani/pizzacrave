@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Leapfrog } from 'ldrs/react';
 import 'ldrs/react/Leapfrog.css';
+import { toast } from 'sonner';
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -28,6 +29,7 @@ export default function VerifyEmail() {
         );
 
         setMessage("✅ Email verified successfully! Redirecting to login...");
+        toast.success("Email verified successfully! Redirecting to login...");
         setShowResend(false);
         localStorage.removeItem("unverifiedEmail");
 
@@ -40,6 +42,7 @@ export default function VerifyEmail() {
           err?.response?.data?.message ||
           "❌ Verification failed or link is invalid.";
         setMessage(backendError);
+        toast.error(backendError);
         setShowResend(true);
         setLoading(false);
       }
@@ -55,6 +58,7 @@ export default function VerifyEmail() {
     const email = localStorage.getItem("unverifiedEmail");
     if (!email) {
       setResendStatus("❌ Email not found. Please register again.");
+      toast.error("Email not found. Please register again.");
       return;
     }
 
@@ -66,8 +70,10 @@ export default function VerifyEmail() {
         { email }
       );
       setResendStatus("✅ Verification email resent. Check your inbox.");
+      toast.success("Verification email resent. Check your inbox.");
     } catch (err) {
       setResendStatus("❌ Failed to resend verification email.");
+      toast.error("Failed to resend verification email.");
     } finally {
       setResendLoading(false);
     }

@@ -3,26 +3,26 @@ import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/logo.png";
 import { faCartPlus, faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { toast } from 'sonner';
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // Check auth on component mount
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     setIsLoggedIn(!!token);
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear(); // or selectively remove auth items
+    localStorage.clear();
     setIsLoggedIn(false);
     navigate("/login");
+    toast.success("Logged out successfully!");
   };
 
   return (
     <nav className="navbar bg-white shadow-lg px-6 flex justify-between items-center w-full">
-      {/* Logo */}
       <div>
         <Link to="/">
           <img
@@ -33,9 +33,7 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {/* Right Section */}
       <div className="flex items-center space-x-6">
-        {/* Cart Icon */}
         <Link to="/my-cart" aria-label="Shopping Cart">
           <FontAwesomeIcon
             icon={faCartPlus}
@@ -43,7 +41,6 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* Auth Buttons */}
         {!isLoggedIn ? (
           <Link to="/login">
             <button
@@ -56,7 +53,6 @@ const Navbar = () => {
           </Link>
         ) : (
           <div className="flex items-center space-x-4">
-            {/* Profile Icon */}
             <Link to="/my-profile" aria-label="Profile">
               <FontAwesomeIcon
                 icon={faUser}
@@ -64,7 +60,6 @@ const Navbar = () => {
               />
             </Link>
 
-            {/* Logout Icon */}
             <button
               onClick={handleLogout}
               aria-label="Logout"

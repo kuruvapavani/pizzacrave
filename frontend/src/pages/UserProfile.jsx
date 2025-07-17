@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Leapfrog } from "ldrs/react";
 import "ldrs/react/Leapfrog.css";
+import { toast } from "sonner";
 
 const UserProfile = () => {
   const id = localStorage.getItem("id");
@@ -38,9 +39,9 @@ const UserProfile = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const userToken = localStorage.getItem("authToken");
 
-  const [profileLoading, setProfileLoading] = useState(true); // Initial load for profile data
-  const [usernameUpdateLoading, setUsernameUpdateLoading] = useState(false); // For username update
-  const [passwordUpdateLoading, setPasswordUpdateLoading] = useState(false); // For password update
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [usernameUpdateLoading, setUsernameUpdateLoading] = useState(false);
+  const [passwordUpdateLoading, setPasswordUpdateLoading] = useState(false);
 
   useEffect(() => {
     const fetchProfileAndRole = async () => {
@@ -64,6 +65,7 @@ const UserProfile = () => {
         }
       } catch (err) {
         console.error("Failed to fetch profile or role:", err);
+        toast.error("Failed to load profile. Please log in again.");
         navigate("/login");
       } finally {
         setProfileLoading(false);
@@ -74,6 +76,7 @@ const UserProfile = () => {
       fetchProfileAndRole();
     } else {
       navigate("/login");
+      toast.error("You need to be logged in to view your profile.");
     }
   }, [userToken, id, navigate]);
 
@@ -83,6 +86,7 @@ const UserProfile = () => {
 
     if (!newUsername || !usernamePassword) {
       setUsernameError("Please fill all fields");
+      toast.error("Please fill all fields to update username.");
       return;
     }
 
@@ -104,6 +108,7 @@ const UserProfile = () => {
 
       setUsername(res.data.username);
       setUsernameSuccess("Username updated successfully");
+      toast.success("Username updated successfully!");
       setNewUsername("");
       setUsernamePassword("");
 
@@ -115,6 +120,7 @@ const UserProfile = () => {
       setUsernameError(
         err.response?.data?.message || "Failed to update username"
       );
+      toast.error(err.response?.data?.message || "Failed to update username.");
     } finally {
       setUsernameUpdateLoading(false);
     }
@@ -126,11 +132,13 @@ const UserProfile = () => {
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
       setPasswordError("Please fill all fields");
+      toast.error("Please fill all fields to change password.");
       return;
     }
 
     if (newPassword !== confirmNewPassword) {
       setPasswordError("New passwords do not match");
+      toast.error("New passwords do not match.");
       return;
     }
 
@@ -152,6 +160,7 @@ const UserProfile = () => {
       );
 
       setPasswordSuccess("Password changed successfully");
+      toast.success("Password changed successfully!");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
@@ -164,6 +173,7 @@ const UserProfile = () => {
       setPasswordError(
         err.response?.data?.message || "Failed to change password"
       );
+      toast.error(err.response?.data?.message || "Failed to change password.");
     } finally {
       setPasswordUpdateLoading(false);
     }
@@ -221,13 +231,6 @@ const UserProfile = () => {
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 className="text-xl text-hero mb-4">Update Username</h2>
 
-            {usernameError && (
-              <p className="text-red-500 mb-4">{usernameError}</p>
-            )}
-            {usernameSuccess && (
-              <p className="text-green-600 mb-4">{usernameSuccess}</p>
-            )}
-
             <input
               type="text"
               placeholder="New Username"
@@ -281,14 +284,6 @@ const UserProfile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 className="text-xl text-hero mb-4">Change Password</h2>
-
-            {passwordError && (
-              <p className="text-red-500 mb-4">{passwordError}</p>
-            )}
-            {passwordSuccess && (
-              <p className="text-green-600 mb-4">{passwordSuccess}</p>
-            )}
-
             <div className="relative mb-4">
               <input
                 type={showCurrentPassword ? "text" : "password"}

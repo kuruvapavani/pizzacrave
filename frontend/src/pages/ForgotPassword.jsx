@@ -2,27 +2,24 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Leapfrog } from 'ldrs/react';
 import 'ldrs/react/Leapfrog.css';
+import { toast } from 'sonner';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
     setLoading(true);
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/users/forgot-password`, {
         email,
       });
-      setMessage(response.data.message);
+      toast.success(response.data.message);
       setEmail("");
     } catch (err) {
-      setError(
+      toast.error(
         err.response?.data?.message || "Something went wrong. Please try again."
       );
     } finally {
@@ -64,13 +61,6 @@ const ForgotPassword = () => {
             )}
           </button>
         </div>
-
-        {message && (
-          <p className="text-green-600 text-center mt-4">{message}</p>
-        )}
-        {error && (
-          <p className="text-red-600 text-center mt-4">{error}</p>
-        )}
       </form>
     </div>
   );

@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import { Leapfrog } from 'ldrs/react';
+import 'ldrs/react/Leapfrog.css';
+
 const MyOrderPizzaCard = ({
   name = "Pizza Name",
   price = 299,
@@ -6,6 +9,8 @@ const MyOrderPizzaCard = ({
   quantity,
   variant,
 }) => {
+  const [imageLoading, setImageLoading] = useState(true);
+
   return (
     <div className="flex flex-col border-4 border-hero rounded-3xl max-w-96 p-6 bg-white shadow-lg relative">
       <div className="flex justify-between">
@@ -20,11 +25,19 @@ const MyOrderPizzaCard = ({
             <span className="text-lg font-medium">{quantity}</span>
           </div>
         </div>
-        <div>
+        <div className="relative h-24 w-24 md:h-32 md:w-32 flex items-center justify-center">
+          {imageLoading && (
+            <Leapfrog
+              size="40"
+              speed="2.5"
+              color="#FFA527"
+            />
+          )}
           <img
             src={image}
             alt={name}
-            className="h-24 w-24 md:h-32 md:w-32 rounded-3xl object-cover ml-4"
+            className={`h-full w-full rounded-3xl object-cover ml-4 ${imageLoading ? 'hidden' : 'block'}`}
+            onLoad={() => setImageLoading(false)}
           />
         </div>
       </div>

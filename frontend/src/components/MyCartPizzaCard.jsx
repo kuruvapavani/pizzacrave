@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
+import { toast } from 'sonner';
+import { Leapfrog } from 'ldrs/react';
+import 'ldrs/react/Leapfrog.css';
 
 const MyCartPizzaCard = ({
   _id,
@@ -16,6 +19,7 @@ const MyCartPizzaCard = ({
   const [quantity, setQuantity] = useState(initialQuantity);
   const [variant, setVariant] = useState(initialVariant.toLowerCase());
   const [loading, setLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
   const userId = localStorage.getItem("id");
   const userToken = localStorage.getItem("authToken");
@@ -42,10 +46,11 @@ const MyCartPizzaCard = ({
       );
       setQuantity(newQuantity);
       setVariant(newVariant);
-
+      toast.success("Cart item updated!");
       await refreshCart();
     } catch (error) {
       console.error("Error updating cart item:", error);
+      toast.error("Failed to update item.");
     } finally {
       setLoading(false);
     }
@@ -76,9 +81,11 @@ const MyCartPizzaCard = ({
           variant: variant,
         },
       });
+      toast.success("Item removed from cart.");
       await refreshCart();
     } catch (error) {
       console.error("Error removing cart item:", error);
+      toast.error("Failed to remove item.");
     } finally {
       setLoading(false);
     }
@@ -87,7 +94,7 @@ const MyCartPizzaCard = ({
   return (
     <div className="flex flex-col border-4 border-hero rounded-3xl max-w-96 p-6 bg-white shadow-lg relative">
       {loading && (
-        <div className="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center rounded-3xl text-lg font-bold text-hero">
+        <div className="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center rounded-3xl text-lg font-bold text-hero z-10">
           Updating...
         </div>
       )}
@@ -125,11 +132,19 @@ const MyCartPizzaCard = ({
             </button>
           </div>
         </div>
-        <div>
+        <div className="relative h-24 w-24 md:h-32 md:w-32 flex items-center justify-center">
+          {imageLoading && (
+            <Leapfrog
+              size="40"
+              speed="2.5"
+              color="#FFA527"
+            />
+          )}
           <img
             src={image}
             alt={name}
-            className="h-24 w-24 md:h-32 md:w-32 rounded-3xl object-cover ml-4"
+            className={`h-full w-full rounded-3xl object-cover ml-4 ${imageLoading ? 'hidden' : 'block'}`}
+            onLoad={() => setImageLoading(false)}
           />
         </div>
       </div>

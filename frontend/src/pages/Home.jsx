@@ -4,6 +4,7 @@ import PizzaCard from "../components/PizzaCard";
 import Layout from "../components/Layout";
 import { Leapfrog } from 'ldrs/react';
 import 'ldrs/react/Leapfrog.css';
+import { toast } from 'sonner';
 
 const Home = () => {
   const [pizzaData, setPizzaData] = useState([]);
@@ -17,7 +18,9 @@ const Home = () => {
         setPizzaData(res.data);
       } catch (err) {
         console.error("Error fetching pizzas:", err);
-        setError("Failed to load pizzas. Please try again.");
+        const errorMessage = "Failed to load pizzas. Please try again.";
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }

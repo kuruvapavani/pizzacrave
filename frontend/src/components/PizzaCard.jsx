@@ -4,6 +4,7 @@ import { faCartPlus } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { Leapfrog } from 'ldrs/react';
 import 'ldrs/react/Leapfrog.css';
+import { toast } from 'sonner';
 
 const PizzaCard = ({ pizza }) => {
   const [quantity, setQuantity] = useState(1);
@@ -18,6 +19,7 @@ const PizzaCard = ({ pizza }) => {
 
       if (!userToken || !userId) {
         navigate('/login');
+        toast.error("Please log in to add items to your cart.");
         return;
       }
 
@@ -38,19 +40,19 @@ const PizzaCard = ({ pizza }) => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Item added to cart!");
+        toast.success("Item added to cart!");
       } else {
-        alert(data.message || "Failed to add item.");
+        toast.error(data.message || "Failed to add item.");
       }
     } catch (error) {
       console.error("Add to cart error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
   return (
     <div className="flex flex-col bg-white shadow-lg rounded-lg p-4 w-68 mx-auto hover:shadow-xl transition-shadow duration-300">
-      <div className="flex justify-center mb-4 h-52"> {/* Added a fixed height to prevent layout shift */}
+      <div className="flex justify-center mb-4 h-52">
         {imageLoading && (
           <div className="flex items-center justify-center h-full">
             <Leapfrog

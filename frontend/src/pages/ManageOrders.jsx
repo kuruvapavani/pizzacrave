@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import { Leapfrog } from "ldrs/react";
 import "ldrs/react/Leapfrog.css";
+import { toast } from 'sonner';
 
 const ManageOrders = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const ManageOrders = () => {
         );
         if (roleRes.data.role !== "admin") {
           navigate("/");
+          toast.error("You are not authorized to view this page.");
           return;
         }
 
@@ -49,6 +51,7 @@ const ManageOrders = () => {
         setOrders(ordersRes.data);
       } catch (error) {
         console.error("Failed to fetch data:", error);
+        toast.error("Failed to load orders. Please try again.");
         navigate("/");
       } finally {
         setInitialLoading(false);
@@ -59,6 +62,7 @@ const ManageOrders = () => {
       checkRoleAndFetchOrders();
     } else {
       navigate("/login");
+      toast.error("Please log in to access this page.");
     }
   }, [id, navigate, userToken]);
 
@@ -78,8 +82,7 @@ const ManageOrders = () => {
           },
         }
       );
-      alert("Order deleted");
-      // Refetch orders after deletion
+      toast.success("Order deleted successfully!");
       const res = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/api/orders`,
         {
@@ -91,6 +94,7 @@ const ManageOrders = () => {
       setOrders(res.data);
     } catch (err) {
       console.error("Delete failed:", err);
+      toast.error("Failed to delete order.");
     } finally {
       setUpdateLoading(false);
     }
@@ -124,8 +128,7 @@ const ManageOrders = () => {
           },
         }
       );
-      alert("Order & Payment status updated");
-      // Refetch orders after update
+      toast.success("Order & Payment status updated successfully!");
       const res = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/api/orders`,
         {
@@ -138,8 +141,9 @@ const ManageOrders = () => {
       setShowStatusModal(false);
     } catch (error) {
       console.error("Error updating statuses:", error);
+      toast.error("Failed to update order status.");
     } finally {
-      setUpdateLoading(false); // Stop loading
+      setUpdateLoading(false);
     }
   };
 

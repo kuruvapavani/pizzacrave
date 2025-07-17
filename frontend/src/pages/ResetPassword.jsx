@@ -5,6 +5,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Leapfrog } from 'ldrs/react';
 import 'ldrs/react/Leapfrog.css';
+import { toast } from 'sonner';
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -14,8 +15,6 @@ const ResetPassword = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +27,7 @@ const ResetPassword = () => {
         await axios.get(`${process.env.REACT_APP_BASE_URL}/api/users/verify-reset-token/${token}`);
         setIsValidToken(true);
       } catch (err) {
-        setError("Invalid or expired reset link.");
+        toast.error("Invalid or expired reset link.");
       } finally {
         setInitialLoading(false);
       }
@@ -39,13 +38,11 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
     setSubmitLoading(true);
 
     if (newPassword !== confirmPassword) {
       setSubmitLoading(false);
-      return setError("Passwords do not match");
+      return toast.error("Passwords do not match");
     }
 
     const passwordRegex =
@@ -53,7 +50,7 @@ const ResetPassword = () => {
 
     if (!passwordRegex.test(newPassword)) {
       setSubmitLoading(false);
-      return setError(
+      return toast.error(
         "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
       );
     }
@@ -63,13 +60,13 @@ const ResetPassword = () => {
         `${process.env.REACT_APP_BASE_URL}/api/users/reset-password/${token}`,
         { newPassword }
       );
-      setMessage(res.data.message);
+      toast.success(res.data.message);
       localStorage.clear();
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
+      toast.error(err.response?.data?.message || "Something went wrong");
     } finally {
       setSubmitLoading(false);
     }
@@ -95,7 +92,7 @@ const ResetPassword = () => {
         </h2>
 
         {!isValidToken ? (
-          <p className="text-red-600 text-center">{error}</p>
+          <p className="text-red-600 text-center"></p>
         ) : (
           <>
             <div className="mb-4 relative">
@@ -149,13 +146,6 @@ const ResetPassword = () => {
                 )}
               </button>
             </div>
-
-            {message && (
-              <p className="text-green-600 text-center mt-4">{message}</p>
-            )}
-            {error && (
-              <p className="text-red-600 text-center mt-4">{error}</p>
-            )}
           </>
         )}
       </form>

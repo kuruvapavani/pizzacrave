@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Leapfrog } from 'ldrs/react';
 import 'ldrs/react/Leapfrog.css';
+import { toast } from 'sonner';
 
 const ManagePizzas = () => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ const ManagePizzas = () => {
         );
         if (roleRes.data.role !== "admin") {
           navigate("/");
+          toast.error("You are not authorized to view this page.");
           return;
         }
 
@@ -48,6 +50,7 @@ const ManagePizzas = () => {
         setPizzas(pizzasRes.data);
       } catch (err) {
         console.error("Failed to fetch data:", err);
+        toast.error("Failed to load data. Please try again.");
         navigate("/");
       } finally {
         setInitialLoading(false);
@@ -58,6 +61,7 @@ const ManagePizzas = () => {
       checkRoleAndFetchPizzas();
     } else {
       navigate("/login");
+      toast.error("Please log in to access this page.");
     }
   }, [id, navigate]);
 
@@ -67,6 +71,7 @@ const ManagePizzas = () => {
       setPizzas(res.data);
     } catch (error) {
       console.error("Failed to fetch pizzas:", error);
+      toast.error("Failed to refresh pizza list.");
     }
   };
 
@@ -90,11 +95,12 @@ const ManagePizzas = () => {
           variants: ["small", "medium", "large"],
         }
       );
-      alert("Pizza updated");
+      toast.success("Pizza updated successfully!");
       fetchPizzas();
       setShowEditModal(false);
     } catch (error) {
       console.error("Error updating pizza:", error);
+      toast.error("Failed to update pizza.");
     } finally {
       setActionLoading(false);
     }
@@ -106,10 +112,11 @@ const ManagePizzas = () => {
     setActionLoading(true);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/pizzas/${pizzaId}`);
-      alert("Pizza deleted");
+      toast.success("Pizza deleted successfully!");
       fetchPizzas();
     } catch (error) {
       console.error("Delete error:", error);
+      toast.error("Failed to delete pizza.");
     } finally {
       setActionLoading(false);
     }
@@ -132,11 +139,12 @@ const ManagePizzas = () => {
         ...formData,
         variants: ["small", "medium", "large"],
       });
-      alert("Pizza added");
+      toast.success("Pizza added successfully!");
       fetchPizzas();
       setShowAddModal(false);
     } catch (error) {
       console.error("Error adding pizza:", error);
+      toast.error("Failed to add pizza.");
     } finally {
       setActionLoading(false);
     }

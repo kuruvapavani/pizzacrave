@@ -25,9 +25,8 @@ const getUserOrders = async (req, res) => {
     const { userId } = req.params;
 
     const userOrders = await Order.find({ userId }).sort({ createdAt: -1 });
-
-    if (!userOrders || userOrders.length === 0) {
-      return res.status(404).json({ message: "User orders not found" });
+    if (!userOrders) {
+      return res.status(200).json([]);
     }
 
     return res.status(200).json(userOrders);
@@ -51,7 +50,12 @@ const placeOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Place Order Error:", error);
-    res.status(500).json({ message: error.message || "Something went wrong while placing the order" });
+    res
+      .status(500)
+      .json({
+        message:
+          error.message || "Something went wrong while placing the order",
+      });
   }
 };
 
@@ -75,7 +79,9 @@ const updatePaymentStatus = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    return res.status(200).json({ message: "Payment status updated", order: updatedOrder });
+    return res
+      .status(200)
+      .json({ message: "Payment status updated", order: updatedOrder });
   } catch (error) {
     console.error("Update Payment Status Error:", error);
     res.status(500).json({ message: "Something went wrong" });
@@ -111,7 +117,9 @@ const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    res.status(200).json({ message: "Order status updated", order: updatedOrder });
+    res
+      .status(200)
+      .json({ message: "Order status updated", order: updatedOrder });
   } catch (error) {
     console.error("Update Order Status Error:", error);
     res.status(500).json({ message: "Something went wrong" });
@@ -152,7 +160,6 @@ const getOrderDetails = async (req, res) => {
   }
 };
 
-
 module.exports = {
   getAllOrders,
   getUserOrders,
@@ -160,5 +167,5 @@ module.exports = {
   updatePaymentStatus,
   updateOrderStatus,
   deleteOrder,
-  getOrderDetails
+  getOrderDetails,
 };

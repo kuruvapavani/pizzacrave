@@ -15,6 +15,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { Toaster } from "sonner";
+import ErrorPage from "./pages/ErrorPage";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="*" element={<ErrorPage />} />
         </Routes>
       </Router>
     </>

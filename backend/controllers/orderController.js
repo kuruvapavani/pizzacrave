@@ -1,5 +1,7 @@
 const Order = require("../models/orderModel");
 const Cart = require("../models/cartModel");
+const User = require("../models/userModel");
+const sendEmail = require("../utils/sendEmail");
 const { placeOrderLogic } = require("../utils/placeOrderLogic");
 // GET all orders (admin only)
 const getAllOrders = async (req, res) => {
@@ -44,20 +46,43 @@ const placeOrder = async (req, res) => {
 
     const newOrder = await placeOrderLogic(userId, address, "Pending");
 
+    // Send email to admin
+    const user = await User.findById(userId); // assuming you have a User model
+    const adminEmail = process.env.ADMIN_EMAIL; // set this in your .env
+
+    const orderItemsHTML = newOrder.items
+      .map(
+        (item) => `
+      <li>
+        ${item.name} (${item.variant}) - Qty: ${item.quantity} - ₹${item.price}
+      </li>`
+      )
+      .join("");
+
+    const emailContent = `
+      <h2>New Order Placed</h2>
+      <p><strong>User:</strong> ${user.username} (${user.email})</p>
+      <p><strong>Address:</strong> ${newOrder.address}</p>
+      <p><strong>Total:</strong> ₹${newOrder.totalAmount}</p>
+      <p><strong>Items:</strong></p>
+      <ul>${orderItemsHTML}</ul>
+    `;
+
+    await sendEmail(adminEmail, "New Order Received", emailContent);
+
     res.status(201).json({
       message: "Order placed successfully from cart",
       order: newOrder,
     });
   } catch (error) {
     console.error("Place Order Error:", error);
-    res
-      .status(500)
-      .json({
-        message:
-          error.message || "Something went wrong while placing the order",
-      });
+    res.status(500).json({
+      message:
+        error.message || "Something went wrong while placing the order",
+    });
   }
 };
+
 
 // PATCH - update payment status (admin only)
 const updatePaymentStatus = async (req, res) => {

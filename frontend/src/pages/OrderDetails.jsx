@@ -101,8 +101,20 @@ const OrderDetails = () => {
                 <span>{order.address}</span>
               </div>
               <div className="flex flex-col sm:flex-row sm:justify-between">
-                <span className="font-medium">Total Amount:</span>
-                <span>₹{order.totalAmount}</span>
+                <span className="font-medium">Subtotal:</span>
+                <span>₹{order.totalAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between">
+                <span className="font-medium">GST (5%):</span>
+                <span>₹{order.gstCharges.toFixed(2)}</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between">
+                <span className="font-medium">Delivery Fee:</span>
+                <span>₹{order.deliveryCharges.toFixed(2)}</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between border-t pt-3 font-semibold text-lg">
+                <span>Total (Final Amount):</span>
+                <span>₹{order.finalAmount.toFixed(2)}</span>
               </div>
               <div className="flex flex-col sm:flex-row sm:justify-between">
                 <span className="font-medium">Payment Status:</span>

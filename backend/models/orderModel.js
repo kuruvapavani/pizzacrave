@@ -24,11 +24,23 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  pizzaNames : {
-    type : String,
-    required : true,
+  pizzaNames: {
+    type: String,
+    required: true,
   },
   totalAmount: {
+    type: Number,
+    required: true,
+  },
+  gstCharges: {
+    type: Number,
+    required: true,
+  },
+  deliveryCharges: {
+    type: Number,
+    required: true,
+  },
+  finalAmount: {
     type: Number,
     required: true,
   },
@@ -39,7 +51,14 @@ const orderSchema = new mongoose.Schema({
   },
   orderStatus: {
     type: String,
-    enum: ["Placed", "Preparing", "Ready to Deliver", "Out for Delivery", "Delivered", "Cancelled"],
+    enum: [
+      "Placed",
+      "Preparing",
+      "Ready to Deliver",
+      "Out for Delivery",
+      "Delivered",
+      "Cancelled",
+    ],
     default: "Placed",
   },
   createdAt: {

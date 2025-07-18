@@ -38,6 +38,26 @@ const cartSchema = mongoose.Schema(
         },
       },
     ],
+    subTotal: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    gstCharges: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    deliveryCharges: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    totalAmount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
   },
   {
     timestamps: true,

@@ -1,6 +1,22 @@
 const Cart = require("../models/cartModel");
 const Pizza = require("../models/pizzaModel");
 
+const GST_RATE = 0.05; // 5% GST
+const DELIVERY_CHARGE = 50;
+
+// Helper function to calculate totals
+function calculateCartTotals(cart) {
+  const subTotal = cart.items.reduce((acc, item) => acc + item.price, 0);
+  const gstCharges = parseFloat((subTotal * GST_RATE).toFixed(2));
+  const deliveryCharges = subTotal > 0 ? DELIVERY_CHARGE : 0;
+  const totalAmount = parseFloat((subTotal + gstCharges + deliveryCharges).toFixed(2));
+
+  cart.subTotal = subTotal;
+  cart.gstCharges = gstCharges;
+  cart.deliveryCharges = deliveryCharges;
+  cart.totalAmount = totalAmount;
+}
+
 // Add item to cart
 const addToCart = async (req, res) => {
   try {
@@ -27,8 +43,7 @@ const addToCart = async (req, res) => {
 
     if (cart) {
       const existingItemIndex = cart.items.findIndex(
-        (item) =>
-          item.pizzaId.toString() === pizzaid && item.variant === variant
+        (item) => item.pizzaId.toString() === pizzaid && item.variant === variant
       );
 
       if (existingItemIndex > -1) {
@@ -38,12 +53,15 @@ const addToCart = async (req, res) => {
         cart.items.push(newItem);
       }
 
+      calculateCartTotals(cart);
       await cart.save();
     } else {
       cart = new Cart({
         userId: userid,
         items: [newItem],
       });
+
+      calculateCartTotals(cart);
       await cart.save();
     }
 
@@ -86,6 +104,7 @@ const removeFromCart = async (req, res) => {
       (item) => item.pizzaId.toString() !== pizzaid || item.variant !== variant
     );
 
+    calculateCartTotals(cart);
     await cart.save();
 
     res.status(200).json({ message: "Item removed from cart", cart });
@@ -107,6 +126,7 @@ const clearCart = async (req, res) => {
     }
 
     cart.items = [];
+    calculateCartTotals(cart);
     await cart.save();
 
     res.status(200).json({ message: "Cart cleared", cart });
@@ -159,6 +179,7 @@ const updateCartItem = async (req, res) => {
       price: totalPrice,
     };
 
+    calculateCartTotals(cart);
     await cart.save();
     res.status(200).json({ message: "Cart item updated", cart });
   } catch (error) {

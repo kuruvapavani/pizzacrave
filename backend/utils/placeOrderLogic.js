@@ -18,17 +18,23 @@ const placeOrderLogic = async (userId, address, status = "Placed") => {
     .join(", ");
 
   const totalAmount = cart.items.reduce((sum, item) => sum + item.price, 0);
+  const gstCharges = parseFloat((totalAmount * 0.05).toFixed(2)); // 5% GST
+  const deliveryCharges = 40; // fixed delivery charge
+
+  const finalAmount = parseFloat((totalAmount + gstCharges + deliveryCharges).toFixed(2));
 
   const newOrder = new Order({
-  userId,
-  items: cart.items,
-  address,
-  totalAmount,
-  pizzaNames,
-  orderStatus: "Placed",
-  paymentStatus: status,
-});
-
+    userId,
+    items: cart.items,
+    address,
+    pizzaNames,
+    totalAmount,
+    gstCharges,
+    deliveryCharges,
+    finalAmount,
+    orderStatus: "Placed",
+    paymentStatus: status,
+  });
 
   await newOrder.save();
 

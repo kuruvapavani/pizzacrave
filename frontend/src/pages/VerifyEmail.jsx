@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Leapfrog } from 'ldrs/react';
-import 'ldrs/react/Leapfrog.css';
-import { toast } from 'sonner';
+import { Leapfrog } from "ldrs/react";
+import "ldrs/react/Leapfrog.css";
+import { toast } from "sonner";
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -15,6 +15,14 @@ export default function VerifyEmail() {
 
   const token = searchParams.get("token");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      toast.error("Invalid or expired verification link.");
+      navigate("/login");
+      return;
+    }
+  }, [token, navigate]);
 
   useEffect(() => {
     let isCalled = false;
@@ -85,11 +93,7 @@ export default function VerifyEmail() {
 
       {loading ? (
         <div className="flex flex-col items-center space-y-2">
-          <Leapfrog
-            size="60"
-            speed="2.5"
-            color="#FFA527"
-          />
+          <Leapfrog size="60" speed="2.5" color="#FFA527" />
           <p className="text-blue-600">Verifying email...</p>
         </div>
       ) : (
@@ -104,11 +108,7 @@ export default function VerifyEmail() {
                 disabled={resendLoading}
               >
                 {resendLoading ? (
-                  <Leapfrog
-                    size="20"
-                    speed="2.5"
-                    color="#FFFFFF"
-                  />
+                  <Leapfrog size="20" speed="2.5" color="#FFFFFF" />
                 ) : (
                   "Resend Verification Email"
                 )}

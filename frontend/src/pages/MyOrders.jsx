@@ -5,6 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Leapfrog } from 'ldrs/react';
 import 'ldrs/react/Leapfrog.css';
+import { toast } from "sonner";
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -58,6 +59,7 @@ const MyOrders = () => {
 
     if (!userId || !userToken) {
       navigate("/login");
+      toast.error("Please login to view order history");
       return;
     }
 

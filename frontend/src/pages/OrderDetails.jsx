@@ -2,17 +2,24 @@ import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import MyOrderPizzaCard from "../components/MyOrderPizzaCard";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Leapfrog } from "ldrs/react";
 import "ldrs/react/Leapfrog.css";
+import { toast } from "sonner";
 
 const OrderDetails = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if(!token){
+      toast.error("Please login to view order details");
+      navigate('/login');
+    }
     if (!id) {
       setLoading(false);
       setError("No order ID provided.");

@@ -17,7 +17,7 @@ const createStripeSession = async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
-    const totalAmount = cart.items.reduce((sum, item) => sum + item.price, 0);
+    const totalAmount = cart.totalAmount;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],

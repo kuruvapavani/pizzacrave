@@ -24,6 +24,7 @@ const Login = () => {
     const getToken = localStorage.getItem("authToken");
     if (getToken) {
       navigate("/");
+      toast.error("You are already logged in.");
     }
   }, [navigate]);
 

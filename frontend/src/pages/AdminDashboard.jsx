@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Leapfrog } from 'ldrs/react';
 import 'ldrs/react/Leapfrog.css';
+import { toast } from 'sonner';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const AdminDashboard = () => {
         const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/users/get-role/${id}`);
         if (res.data.role !== "admin") {
           navigate("/");
+          toast.error("You are not authorized to view this page")
         }
       } catch (err) {
         console.error("Failed to fetch role:", err);
@@ -30,6 +32,7 @@ const AdminDashboard = () => {
       checkRole();
     } else {
       navigate("/login");
+      toast.error("Please login to acess this page");
     }
   }, [id, navigate]);
 

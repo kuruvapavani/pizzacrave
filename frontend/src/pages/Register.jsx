@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import loginPizza from "../assets/image.png";
@@ -18,6 +18,14 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword1, setShowPassword1] = useState(false);
   const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("authToken");
+
+  useEffect(()=>{
+    if(token){
+      navigate("/");
+      toast.error("You are already logged in. Please log out to register a new account.");
+    }
+  },[navigate])
 
   const navigate = useNavigate();
 

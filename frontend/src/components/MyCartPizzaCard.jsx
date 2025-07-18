@@ -12,6 +12,7 @@ const MyCartPizzaCard = ({
   name = "Pizza Name",
   price = 299,
   image,
+  category,
   initialQuantity = 1,
   initialVariant = "small",
   refreshCart,
@@ -98,9 +99,12 @@ const MyCartPizzaCard = ({
           Updating...
         </div>
       )}
-      <div className="flex justify-between">
-        <div className="flex flex-col justify-center gap-2">
+      <div className="flex justify-between items-start"> {/* Changed items-center to items-start for better alignment */}
+        <div className="flex flex-col gap-2"> {/* Removed justify-center here */}
           <div className="text-xl text-gray-800">{name}</div>
+          <div className="font-medium bg-hero text-white px-2 py-1 rounded self-start"> {/* Added self-start */}
+            {category ? category.charAt(0).toUpperCase() + category.slice(1) : 'N/A'}
+          </div>
           <div className="flex items-center gap-2">
             <label className="font-medium">Variant:</label>
             <select

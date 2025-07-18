@@ -8,6 +8,7 @@ const MyOrderPizzaCard = ({
   image,
   quantity,
   variant,
+  category
 }) => {
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -16,6 +17,10 @@ const MyOrderPizzaCard = ({
       <div className="flex justify-between">
         <div className="flex flex-col justify-center gap-2">
           <div className="text-xl text-gray-800">{name}</div>
+          <div className="flex items-center gap-2">
+            <label className="font-medium">Category :</label>
+            <div className=" px-2 py-1 text-gray-700">{category}</div>
+          </div>
           <div className="flex items-center gap-2">
             <label className="font-medium">Variant:</label>
             <div className=" px-2 py-1 text-gray-700">{variant}</div>

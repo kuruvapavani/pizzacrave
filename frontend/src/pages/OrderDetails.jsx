@@ -84,6 +84,7 @@ const OrderDetails = () => {
                 name={item.name}
                 price={item.price}
                 image={item.image}
+                category={item.category}
                 quantity={item.quantity}
                 variant={item.variant}
               />

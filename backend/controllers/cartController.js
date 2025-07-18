@@ -9,7 +9,9 @@ function calculateCartTotals(cart) {
   const subTotal = cart.items.reduce((acc, item) => acc + item.price, 0);
   const gstCharges = parseFloat((subTotal * GST_RATE).toFixed(2));
   const deliveryCharges = subTotal > 0 ? DELIVERY_CHARGE : 0;
-  const totalAmount = parseFloat((subTotal + gstCharges + deliveryCharges).toFixed(2));
+  const totalAmount = parseFloat(
+    (subTotal + gstCharges + deliveryCharges).toFixed(2)
+  );
 
   cart.subTotal = subTotal;
   cart.gstCharges = gstCharges;
@@ -35,6 +37,7 @@ const addToCart = async (req, res) => {
       name: pizza.name,
       image: pizza.image,
       variant,
+      category: pizza.category,
       quantity,
       price: totalPrice,
     };
@@ -43,7 +46,8 @@ const addToCart = async (req, res) => {
 
     if (cart) {
       const existingItemIndex = cart.items.findIndex(
-        (item) => item.pizzaId.toString() === pizzaid && item.variant === variant
+        (item) =>
+          item.pizzaId.toString() === pizzaid && item.variant === variant
       );
 
       if (existingItemIndex > -1) {
@@ -175,6 +179,7 @@ const updateCartItem = async (req, res) => {
       name: newPizza.name,
       image: newPizza.image,
       variant: newVariant,
+      category: newPizza.category,
       quantity: newQuantity,
       price: totalPrice,
     };

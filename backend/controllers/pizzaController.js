@@ -20,7 +20,6 @@ const getPizza = async (req, res) => {
   try {
     const pizza = await Pizza.findById(req.params.id);
     if (!pizza) return res.status(404).json({ msg: "Pizza not found" });
-
     res.status(200).json(pizza);
   } catch (error) {
     console.error("Error fetching pizza:", error.message);
@@ -30,9 +29,9 @@ const getPizza = async (req, res) => {
 
 // @desc    Create a new pizza
 // @route   POST /api/pizzas
-// @access  Private/Admin (optional: restrict with auth)
+// @access  Private/Admin (optional)
 const createPizza = async (req, res) => {
-  const { name, image, price, variants } = req.body;
+  const { name, image, price, variants, type } = req.body;
 
   try {
     const newPizza = new Pizza({
@@ -40,6 +39,7 @@ const createPizza = async (req, res) => {
       image,
       price,
       variants,
+      category,
     });
 
     const savedPizza = await newPizza.save();
@@ -57,7 +57,15 @@ const updatePizza = async (req, res) => {
   try {
     const updatedPizza = await Pizza.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      {
+        $set: {
+          name: req.body.name,
+          image: req.body.image,
+          price: req.body.price,
+          variants: req.body.variants,
+          category: req.body.category,
+        },
+      },
       { new: true }
     );
 

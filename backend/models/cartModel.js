@@ -27,6 +27,11 @@ const cartSchema = mongoose.Schema(
           enum: ["small", "medium", "large"],
           required: true,
         },
+        category: {
+          type: String,
+          enum: ["veg", "non-veg"],
+          required: true,
+        },
         quantity: {
           type: Number,
           required: true,

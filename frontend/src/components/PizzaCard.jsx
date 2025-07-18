@@ -70,8 +70,13 @@ const PizzaCard = ({ pizza }) => {
         />
       </div>
       <div className="text-lg text-center mb-2">{pizza.name}</div>
-      <div className="text-center text-gray-700 font-medium mb-4">
-        Price: {pizza.price[variants] * quantity} Rs/-
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-gray-700 font-medium">
+          Price: ₹{pizza.price[variants] * quantity}/-
+        </div>
+        <div className="text-gray-700 font-medium bg-hero text-white px-2 py-1 rounded ">
+          {pizza.category ? pizza.category.charAt(0).toUpperCase() + pizza.category.slice(1) : 'N/A'}
+        </div>
       </div>
       <div className="flex justify-between items-center space-x-4">
         <select

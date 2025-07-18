@@ -19,6 +19,11 @@ const pizzaSchema = mongoose.Schema(
       type: Array,
       required: true,
     },
+    category: {
+      type: String,
+      enum: ["veg", "non-veg"],
+      required: true,
+    },
   },
   {
     timestamps: true,

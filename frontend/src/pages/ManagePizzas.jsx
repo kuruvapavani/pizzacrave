@@ -28,6 +28,7 @@ const ManagePizzas = () => {
       medium: "",
       large: "",
     },
+    category: "veg",
   });
 
   const [initialLoading, setInitialLoading] = useState(true);
@@ -81,6 +82,7 @@ const ManagePizzas = () => {
       name: pizza.name,
       image: pizza.image,
       price: pizza.price,
+      category: pizza.category || "veg",
     });
     setShowEditModal(true);
   };
@@ -128,6 +130,7 @@ const ManagePizzas = () => {
       name: "",
       image: "",
       price: { small: "", medium: "", large: "" },
+      category: "veg",
     });
     setShowAddModal(true);
   };
@@ -185,6 +188,7 @@ const ManagePizzas = () => {
               <tr>
                 <th className="py-3 px-4 text-left font-normal">Image</th>
                 <th className="py-3 px-4 text-left font-normal">Name</th>
+                <th className="py-3 px-4 text-left font-normal">Category</th>
                 <th className="py-3 px-4 text-left font-normal">Variants</th>
                 <th className="py-3 px-4 text-left font-normal">Prices</th>
                 <th className="py-3 px-4 text-left font-normal">Actions</th>
@@ -193,7 +197,7 @@ const ManagePizzas = () => {
             <tbody>
               {pizzas.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-4 text-center text-gray-500">No pizzas found.</td>
+                  <td colSpan="6" className="py-4 text-center text-gray-500">No pizzas found.</td> {/* Updated colspan */}
                 </tr>
               ) : (
                 pizzas.map((pizza) => (
@@ -206,6 +210,7 @@ const ManagePizzas = () => {
                       />
                     </td>
                     <td className="py-3 px-4">{pizza.name}</td>
+                    <td className="py-3 px-4">{pizza.category}</td>
                     <td className="py-3 px-4">small, medium, large</td>
                     <td className="py-3 px-4">
                       Small: ₹{pizza.price.small} <br />
@@ -259,6 +264,17 @@ const ManagePizzas = () => {
               className="w-full border px-3 py-2 rounded mb-3"
               disabled={actionLoading}
             />
+
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="w-full border px-3 py-2 rounded mb-3"
+              disabled={actionLoading}
+            >
+              <option value="veg">Veg</option>
+              <option value="non-veg">Non-Veg</option>
+            </select>
+
             <div className="flex gap-2 mb-3">
               <input
                 type="number"

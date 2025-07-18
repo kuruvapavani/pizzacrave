@@ -106,6 +106,7 @@ const MyCart = () => {
                   name={item.name}
                   price={item.price}
                   image={item.image}
+                  category={item.category}
                   initialQuantity={item.quantity}
                   initialVariant={item.variant}
                   refreshCart={fetchCart}

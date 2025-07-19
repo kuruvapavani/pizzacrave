@@ -139,7 +139,7 @@ const MyOrders = () => {
                   ? order.pizzaNames.slice(0, 15) + "..."
                   : order.pizzaNames || "No Pizza Info"}
               </div>
-              <div>${order.totalAmount}</div>
+              <div>${order.finalAmount}</div>
               <div>{order.orderStatus}</div>
               <div>{order.paymentStatus}</div>
               <Link to={`/my-orders/${order._id}`}>

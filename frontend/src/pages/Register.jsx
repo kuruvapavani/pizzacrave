@@ -4,9 +4,9 @@ import axios from "axios";
 import loginPizza from "../assets/image.png";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Leapfrog } from 'ldrs/react';
-import 'ldrs/react/Leapfrog.css';
-import { toast } from 'sonner';
+import { Leapfrog } from "ldrs/react";
+import "ldrs/react/Leapfrog.css";
+import { toast } from "sonner";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -19,15 +19,16 @@ const Register = () => {
   const [showPassword1, setShowPassword1] = useState(false);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("authToken");
-
-  useEffect(()=>{
-    if(token){
-      navigate("/");
-      toast.error("You are already logged in. Please log out to register a new account.");
-    }
-  },[navigate])
-
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+      toast.error(
+        "You are already logged in. Please log out to register a new account."
+      );
+    }
+  }, [token, navigate]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -61,7 +62,9 @@ const Register = () => {
         }
       );
 
-      toast.success(response.data.message || "Please check your email to verify");
+      toast.success(
+        response.data.message || "Please check your email to verify"
+      );
       localStorage.setItem("unverifiedEmail", formData.email);
       setFormData({
         username: "",
@@ -91,11 +94,7 @@ const Register = () => {
 
           {loading ? (
             <div className="flex justify-center items-center h-24">
-              <Leapfrog
-                size="40"
-                speed="2.5"
-                color="#FFA527"
-              />
+              <Leapfrog size="40" speed="2.5" color="#FFA527" />
             </div>
           ) : (
             <>

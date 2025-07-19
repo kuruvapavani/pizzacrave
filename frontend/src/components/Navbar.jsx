@@ -22,7 +22,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar bg-white shadow-lg px-6 flex justify-between items-center w-full">
+    <nav className="navbar bg-white shadow-lg px-6 flex justify-between items-center w-full fixed">
       <div>
         <Link to="/">
           <img

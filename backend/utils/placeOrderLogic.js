@@ -17,11 +17,11 @@ const placeOrderLogic = async (userId, address, status = "Placed") => {
     .filter((name) => name.length > 0)
     .join(", ");
 
-  const totalAmount = cart.items.reduce((sum, item) => sum + item.price, 0);
-  const gstCharges = parseFloat((totalAmount * 0.05).toFixed(2)); // 5% GST
-  const deliveryCharges = 40; // fixed delivery charge
+  const totalAmount = cart.subTotal;
+  const gstCharges = cart.gstCharges;
+  const deliveryCharges = cart.deliveryCharges;
 
-  const finalAmount = parseFloat((totalAmount + gstCharges + deliveryCharges).toFixed(2));
+  const finalAmount = cart.totalAmount;
 
   const newOrder = new Order({
     userId,

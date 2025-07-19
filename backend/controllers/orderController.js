@@ -47,8 +47,8 @@ const placeOrder = async (req, res) => {
     const newOrder = await placeOrderLogic(userId, address, "Pending");
 
     // Send email to admin
-    const user = await User.findById(userId); // assuming you have a User model
-    const adminEmail = process.env.ADMIN_EMAIL; // set this in your .env
+    const user = await User.findById(userId);
+    const adminEmail = process.env.ADMIN_EMAIL;
 
     const orderItemsHTML = newOrder.items
       .map(
@@ -63,7 +63,7 @@ const placeOrder = async (req, res) => {
       <h2>New Order Placed</h2>
       <p><strong>User:</strong> ${user.username} (${user.email})</p>
       <p><strong>Address:</strong> ${newOrder.address}</p>
-      <p><strong>Total:</strong> ₹${newOrder.totalAmount}</p>
+      <p><strong>Total:</strong> ₹${newOrder.finalAmount}</p>
       <p><strong>Items:</strong></p>
       <ul>${orderItemsHTML}</ul>
     `;

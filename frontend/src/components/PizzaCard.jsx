@@ -10,9 +10,13 @@ const PizzaCard = ({ pizza }) => {
   const [quantity, setQuantity] = useState(1);
   const [variants, setVariants] = useState("small");
   const [imageLoading, setImageLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const addToCart = async () => {
+    if (loading) return;
+    setLoading(true);
+
     try {
       const userToken = localStorage.getItem("authToken");
       const userId = localStorage.getItem("id");
@@ -47,6 +51,8 @@ const PizzaCard = ({ pizza }) => {
     } catch (error) {
       console.error("Add to cart error:", error);
       toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,11 +61,7 @@ const PizzaCard = ({ pizza }) => {
       <div className="flex justify-center mb-4 h-52">
         {imageLoading && (
           <div className="flex items-center justify-center h-full">
-            <Leapfrog
-              size="40"
-              speed="2.5"
-              color="#FFA527"
-            />
+            <Leapfrog size="40" speed="2.5" color="#FFA527" />
           </div>
         )}
         <img
@@ -74,7 +76,7 @@ const PizzaCard = ({ pizza }) => {
         <div className="text-gray-700 font-medium">
           Price: ₹{pizza.price[variants] * quantity}/-
         </div>
-        <div className="text-gray-700 font-medium bg-hero text-white px-2 py-1 rounded ">
+        <div className="text-gray-700 font-medium bg-hero text-white px-2 py-1 rounded">
           {pizza.category ? pizza.category.charAt(0).toUpperCase() + pizza.category.slice(1) : 'N/A'}
         </div>
       </div>
@@ -106,9 +108,16 @@ const PizzaCard = ({ pizza }) => {
       <div className="mt-6 flex justify-center">
         <button
           onClick={addToCart}
-          className="bg-hero text-white px-10 py-2 rounded-md flex items-center gap-2 hover:bg-opacity-90"
+          disabled={loading}
+          className="bg-hero text-white px-10 py-2 rounded-md flex items-center gap-2 hover:bg-opacity-90 disabled:opacity-60"
         >
-          Add to Cart <FontAwesomeIcon icon={faCartPlus} />
+          {loading ? (
+            <Leapfrog size="20" speed="2.5" color="white" />
+          ) : (
+            <>
+              Add to Cart <FontAwesomeIcon icon={faCartPlus} />
+            </>
+          )}
         </button>
       </div>
     </div>

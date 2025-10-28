@@ -17,12 +17,14 @@ import ResetPassword from "./pages/ResetPassword";
 import { Toaster } from "sonner";
 import ErrorPage from "./pages/ErrorPage";
 import AboutPage from "./pages/AboutPage";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <>
       <Toaster richColors position="bottom-right" />
       <Router>
+      <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

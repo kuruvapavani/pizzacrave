@@ -171,9 +171,35 @@ const updateCartItem = async (req, res) => {
       return res.status(404).json({ message: "New pizza not found" });
     }
 
-    const newPrice = newPizza.price[newVariant];
-    const totalPrice = newPrice * newQuantity;
+    const newPricePerUnit = newPizza.price[newVariant];
+    const newTotalPrice = newPricePerUnit * newQuantity;
+    const isChangingVariantOrPizza =
+      oldPizzaId !== newPizzaId || oldVariant !== newVariant;
 
+    if (isChangingVariantOrPizza) {
+      const existingNewItemIndex = cart.items.findIndex(
+        (item, index) =>
+          index !== itemIndex &&
+          item.pizzaId.toString() === newPizzaId &&
+          item.variant === newVariant
+      );
+
+      if (existingNewItemIndex !== -1) {
+        const existingItem = cart.items[existingNewItemIndex];
+        const updatedQuantity = existingItem.quantity + newQuantity;
+        const updatedTotalPrice = newPricePerUnit * updatedQuantity;
+        existingItem.quantity = updatedQuantity;
+        existingItem.price = updatedTotalPrice;
+        cart.items.splice(itemIndex, 1);
+        calculateCartTotals(cart);
+        await cart.save();
+        return res.status(200).json({
+          message:
+            "Cart item merged (variant change), quantity increased in existing item.",
+          cart,
+        });
+      }
+    }
     cart.items[itemIndex] = {
       pizzaId: newPizzaId,
       name: newPizza.name,
@@ -181,7 +207,7 @@ const updateCartItem = async (req, res) => {
       variant: newVariant,
       category: newPizza.category,
       quantity: newQuantity,
-      price: totalPrice,
+      price: newTotalPrice,
     };
 
     calculateCartTotals(cart);
